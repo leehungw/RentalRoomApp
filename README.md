@@ -186,8 +186,6 @@
 
 ## IV. Tác giả
 
-* [Phạm Thanh Tường](https://github.com/TuongPhamCT)
-
 * [Lê Ngọc Hưng](https://github.com/leehungw)
 
 
