@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "632187575819",
+    "project_id": "rental-room-c34cb",
+    "storage_bucket": "rental-room-c34cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632187575819:android:a4e32c8971ee7f43f7f10e",
+        "android_client_info": {
+          "package_name": "com.example.rental_room_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632187575819-v77au6fk4243skps86oacj6d7bvbl1bm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClf41P1ZfT7rcty9k7CCTCjOgQwpFv1fU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "632187575819-v77au6fk4243skps86oacj6d7bvbl1bm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "632187575819-4jqegta0k1ran740ilvjmbv9r0tekb2h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.rentalRoomApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
