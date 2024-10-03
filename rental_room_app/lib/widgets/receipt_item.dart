@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
@@ -6,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_model.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/Room/room_repo.dart';
-import 'package:rental_room_app/Views/receipt_detail_screen.dart';
+import 'package:rental_room_app/Views/YourRoom/receipt_detail_screen.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:rental_room_app/widgets/border_container.dart';
@@ -47,8 +46,8 @@ class _ReceiptItemState extends State<ReceiptItem> {
   Widget build(BuildContext context) {
     return isLoading
         ? Container(
-            margin: EdgeInsets.symmetric(vertical: 3, horizontal: 15),
-            child: CircularProgressIndicator(
+            margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+            child: const CircularProgressIndicator(
               color: ColorPalette.primaryColor,
             ),
           )
@@ -65,7 +64,7 @@ class _ReceiptItemState extends State<ReceiptItem> {
               );
             },
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 3, horizontal: 15),
+              margin: const EdgeInsets.symmetric(vertical: 3, horizontal: 15),
               decoration: BoxDecoration(
                 color: widget.receipt.isRead
                     ? Colors.transparent

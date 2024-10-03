@@ -1,15 +1,12 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:rental_room_app/Models/Comment/comment_model.dart';
 import 'package:rental_room_app/Models/Comment/comment_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
-import 'package:rental_room_app/Views/detail_room_screen.dart';
+import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/config/asset_helper.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
@@ -126,7 +123,7 @@ class _RoomItemState extends State<RoomItem> {
                         ),
                         if (_distance != null)
                           Text(
-                            _distance!.toStringAsFixed(1) + ' km',
+                            '${_distance!.toStringAsFixed(1)} km',
                             style: TextStyles.desFunction,
                           ),
                       ],
@@ -152,7 +149,7 @@ class _RoomItemState extends State<RoomItem> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$ ' + widget.room.price.roomPrice.toString(),
+                          '\$ ${widget.room.price.roomPrice}',
                           style: TextStyles.nameRoomItem.copyWith(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -169,7 +166,7 @@ class _RoomItemState extends State<RoomItem> {
                     ),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           FontAwesomeIcons.square,
                           color: ColorPalette.primaryColor,
                           size: 20,

@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rental_room_app/Models/Rental/rental_model.dart';
 
 abstract class RentalRepository {

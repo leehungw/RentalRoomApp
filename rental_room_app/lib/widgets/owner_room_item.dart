@@ -1,6 +1,4 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:geocoding/geocoding.dart';
@@ -8,7 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:rental_room_app/Models/Comment/comment_model.dart';
 import 'package:rental_room_app/Models/Comment/comment_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
-import 'package:rental_room_app/Views/detail_room_screen.dart';
+import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/config/asset_helper.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
@@ -83,7 +81,7 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
               alignment: Alignment.bottomRight,
               children: [
                 ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
@@ -102,7 +100,7 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                     color: widget.room.isAvailable
                         ? Colors.greenAccent.withOpacity(0.8)
                         : Colors.orangeAccent.withOpacity(0.8),
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(10),
                     ),
                   ),
@@ -137,13 +135,13 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                           ),
                         ),
                         Expanded(child: Container()),
-                        Icon(
+                        const Icon(
                           Icons.location_pin,
                           size: 20,
                         ),
                         if (_distance != null)
                           Text(
-                            _distance!.toStringAsFixed(1) + ' km',
+                            '${_distance!.toStringAsFixed(1)} km',
                             style: TextStyles.desFunction,
                           ),
                       ],
@@ -169,7 +167,7 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$ ' + widget.room.price.roomPrice.toString(),
+                          '\$ ${widget.room.price.roomPrice}',
                           style: TextStyles.nameRoomItem.copyWith(
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
@@ -186,7 +184,7 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                     ),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           FontAwesomeIcons.square,
                           color: ColorPalette.primaryColor,
                           size: 20,
