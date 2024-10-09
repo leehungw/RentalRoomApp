@@ -72,4 +72,43 @@ class EditProfilePresenter {
       _view?.onUpdateProfileFailed();
     }
   }
+
+  Future<void> _loadYourRoom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    rentalID = prefs.getString('yourRoomId') ?? '';
+    if (rentalID.isNotEmpty) {
+      yourRoom = await RoomRepositoryIml().getRoomById(rentalID);
+    }
+  }
+
+  Future<void> launchEmailApp() async {
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'personalschedulemanager@gmail.com',
+      queryParameters: {
+        'subject': 'Góp_Ý_Của_Người_Dùng',
+      },
+    );
+
+    try {
+      await launchUrl(emailLaunchUri);
+    } catch (e) {
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Lỗi'),
+              content: const Text('Thiết bị của bạn không có ứng dụng email!'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('OKE'),
+                )
+              ],
+            );
+          });
+    }
+  }
 }

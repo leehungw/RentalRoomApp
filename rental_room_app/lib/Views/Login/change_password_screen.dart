@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
@@ -6,13 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rental_room_app/Contract/Login/change_password_contract.dart';
 import 'package:rental_room_app/Presenter/Login/change_password_presenter.dart';
+import 'package:rental_room_app/Services/shared_preferences_contract.dart';
+import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/config/asset_helper.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:rental_room_app/widgets/model_button.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-//TODO: mvp refactor
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -22,131 +20,90 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen>
-    implements ChangePasswordContract {
-  ChangePasswordPresenter? _changePasswordPresenter;
+    implements ChangePasswordContract, SharedPreferencesContract {
+  late ChangePasswordPresenter _changePasswordPresenter;
+  SharedPreferencesPresenter? _preferencesPresenter;
   final _formKey = GlobalKey<FormState>();
   final _oldPasswordController = TextEditingController();
   final _newPasswordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  bool _oldPasswordVisible = true;
-  bool _newPasswordVisible = true;
-  bool _confirmPasswordVisible = true;
-
-  late String userName;
-  late String userAvatarUrl;
-  late String email;
+  String _userName = "nguyen van a";
+  String _email = "nguyenvana@gmail.com";
+  String _userAvatarUrl = '';
 
   String? oldPasswordError;
   String? newPasswordError;
   String? confirmPasswordError;
-  String? _errorMessage;
-  String? currentPassword;
+
+  bool _oldPasswordVisible = true;
+  bool _newPasswordVisible = true;
+  bool _confirmPasswordVisible = true;
 
   @override
   void initState() {
     _changePasswordPresenter = ChangePasswordPresenter(this);
-    getUserInfoFromSharedPreferences();
+    _preferencesPresenter?.getUserInfoFromSharedPreferences();
     super.initState();
   }
 
-  Future<void> getUserInfoFromSharedPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('name') ?? 'Nguyen Van A';
-      userAvatarUrl = prefs.getString('avatar') ?? '';
-      email = prefs.getString('email') ?? 'nguyenvana@gmail.com';
-      currentPassword = prefs.getString('password');
-    });
+  @override
+  void onChangePasswordSuccess(String message) {
+    _showDialog("Success", message);
   }
 
-  void _changePassword() async {
+  @override
+  void onChangePasswordError(String error) {
+    _showDialog("Error", error);
+  }
+
+  @override
+  void showProgress() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return const Center(child: CircularProgressIndicator());
+        });
+  }
+
+  @override
+  void hideProgress() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  void _showDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void _onChangePassword() {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        oldPasswordError = null;
-        newPasswordError = null;
-        confirmPasswordError = null;
-      });
-      showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return const Center(child: CircularProgressIndicator());
-          });
       String oldPassword = _oldPasswordController.text.trim();
       String newPassword = _newPasswordController.text.trim();
       String confirmPassword = _confirmPasswordController.text.trim();
 
-      User? user = FirebaseAuth.instance.currentUser;
-
-      AuthCredential credential =
-          EmailAuthProvider.credential(email: email, password: oldPassword);
-
-      try {
-        await user!.reauthenticateWithCredential(credential);
-      } catch (error) {
-        // Nếu xảy ra lỗi, hiển thị dialog thông báo lỗi
-        setState(() {
-          oldPasswordError = "Old password is incorrect.";
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-        return;
-      }
-
-      if (_newPasswordController.text.length < 6) {
-        setState(() {
-          newPasswordError = "New password must be at least 6 characters long.";
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-        return;
-      } else {
-        setState(() {
-          newPasswordError = null;
-        });
-      }
-
-      if (_newPasswordController.text != _confirmPasswordController.text) {
-        setState(() {
-          confirmPasswordError = "Confirm password does not match.";
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-        return;
-      } else {
-        setState(() {
-          confirmPasswordError = null;
-        });
-      }
-
-      try {
-        await user.updatePassword(newPassword);
-        Navigator.of(context, rootNavigator: true).pop();
-        showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) {
-              return AlertDialog(
-                title: const Text("Change Password"),
-                content: const Text("Change password successfully!"),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      _oldPasswordController.clear();
-                      _newPasswordController.clear();
-                      _confirmPasswordController.clear();
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("OK"),
-                  )
-                ],
-              );
-            });
-      } catch (error) {
-        setState(() {
-          _errorMessage = error.toString();
-        });
-        Navigator.of(context, rootNavigator: true).pop();
-        return;
-      }
+      _changePasswordPresenter.validateAndChangePassword(
+        oldPassword,
+        newPassword,
+        confirmPassword,
+        _email,
+      );
     }
   }
 
@@ -205,9 +162,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         width: 132,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          image: userAvatarUrl.isNotEmpty
+                          image: _userAvatarUrl.isNotEmpty
                               ? DecorationImage(
-                                  image: NetworkImage(userAvatarUrl),
+                                  image: NetworkImage(_userAvatarUrl),
                                   fit: BoxFit.cover,
                                 )
                               : const DecorationImage(
@@ -219,13 +176,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     ),
                     const Gap(10),
                     Text(
-                      userName,
+                      _userName,
                       style: TextStyles.h4.semibold.copyWith(
                           fontFamily: GoogleFonts.inter().fontFamily,
                           color: ColorPalette.primaryColor),
                     ),
                     const Gap(5),
-                    Text(email,
+                    Text(_email,
                         style: TextStyles.labelStaffDetail.regular.copyWith(
                             fontFamily: GoogleFonts.montserrat().fontFamily,
                             color: ColorPalette.detailBorder.withOpacity(0.7))),
@@ -249,7 +206,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         onTapOutside: (event) =>
                             FocusScope.of(context).unfocus(),
                         controller: _oldPasswordController,
-                        validator: _changePasswordPresenter?.validatePassword,
+                        validator: _changePasswordPresenter.validatePassword,
                         style: TextStyles.h6,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
@@ -311,7 +268,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         onTapOutside: (event) =>
                             FocusScope.of(context).unfocus(),
                         controller: _newPasswordController,
-                        validator: _changePasswordPresenter?.validatePassword,
+                        validator: _changePasswordPresenter.validatePassword,
                         style: TextStyles.h6,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
@@ -373,7 +330,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                         onTapOutside: (event) =>
                             FocusScope.of(context).unfocus(),
                         controller: _confirmPasswordController,
-                        validator: _changePasswordPresenter?.validatePassword,
+                        validator: _changePasswordPresenter.validatePassword,
                         style: TextStyles.h6,
                         decoration: InputDecoration(
                           contentPadding: const EdgeInsets.symmetric(
@@ -419,7 +376,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
                     const Gap(20),
                     ModelButton(
                         onTap: () {
-                          _changePassword();
+                          _onChangePassword();
                         },
                         name: "Change",
                         color: ColorPalette.primaryColor.withOpacity(0.75),
@@ -440,6 +397,16 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen>
           ),
         ),
       );
+    });
+  }
+
+  @override
+  void updateView(
+      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+    setState(() {
+      _userName = userName ?? _userName;
+      _userAvatarUrl = userAvatarUrl ?? _userAvatarUrl;
+      _email = email ?? _email;
     });
   }
 }

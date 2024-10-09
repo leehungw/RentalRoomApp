@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
@@ -14,12 +15,23 @@ abstract class RoomRepository {
   Future<List<String>> uploadImages(
       List<Uint8List> images, String userId, String roomId);
   Stream<List<Room>> getRooms();
+  Stream<List<Room>> getOwnedRoom();
   Future<Room> getRoomById(String roomID);
   Future<List<Room>> getRecommendedRooms(String userId);
 }
 
 class RoomRepositoryIml implements RoomRepository {
+  static final RoomRepositoryIml _instance = RoomRepositoryIml._internal();
+
+  RoomRepositoryIml._internal();
+
+  factory RoomRepositoryIml() {
+    return _instance;
+  }
+
   String apiUrl = 'https://0aa7-34-46-99-219.ngrok-free.app/';
+
+  String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   @override
   Future<void> uploadRoom(Room room) async {
     DocumentReference docRef =
@@ -58,6 +70,7 @@ class RoomRepositoryIml implements RoomRepository {
   Stream<List<Room>> getRooms() {
     return FirebaseFirestore.instance
         .collection(Room.documentId)
+        .where('isAvailable', isEqualTo: true)
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList());
@@ -149,5 +162,15 @@ class RoomRepositoryIml implements RoomRepository {
       recommendedRooms.add(r);
     }
     return recommendedRooms;
+  }
+  
+  @override
+  Stream<List<Room>> getOwnedRoom() {
+    return FirebaseFirestore.instance
+        .collection(Room.documentId)
+        .where('ownerId', isEqualTo: currentUserId)
+        .snapshots()
+        .map((snapshot) =>
+            snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList());
   }
 }

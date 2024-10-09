@@ -1,10 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:rental_room_app/Contract/Home/home_contract.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
@@ -15,11 +13,10 @@ import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/config/asset_helper.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
-import 'package:rental_room_app/widgets/filter_container_widget.dart';
+import 'package:rental_room_app/Views/Home/Subviews/filter_container_widget.dart';
 import 'package:rental_room_app/widgets/owner_room_item.dart';
 import 'package:rental_room_app/widgets/room_item.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,9 +31,6 @@ class _HomeScreenState extends State<HomeScreen>
   SharedPreferencesPresenter? _preferencesPresenter;
   HomePresenter? _homePresenter;
   final RoomRepository _roomRepository = RoomRepositoryIml();
-  final docRef = FirebaseFirestore.instance
-      .collection("users")
-      .doc(FirebaseAuth.instance.currentUser?.uid);
 
   int _selectedIndex = 0;
   String _userName = "nguyen van a";
@@ -49,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   late List<Room> roomAvailable;
   String rentalID = '';
-  final String userID = FirebaseAuth.instance.currentUser!.uid;
   late Room yourRoom;
 
   bool? priceDesc;
@@ -61,106 +54,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   String _recommendTextError = "Service Unavailable!";
 
-  List<Room> loadListOwnerRoom(List<Room> list) {
-    List<Room> newList = List.from(list);
-    newList = list.where((element) => element.ownerId == userID).toList();
-    if (priceDesc == true) {
-      newList.sort((a, b) => b.price.roomPrice.compareTo(a.price.roomPrice));
-    }
-    if (priceDesc == false) {
-      newList.sort((a, b) => a.price.roomPrice.compareTo(b.price.roomPrice));
-    }
-    if (areaDesc == true) {
-      newList.sort((a, b) => b.area.compareTo(a.area));
-    }
-    if (areaDesc == false) {
-      newList.sort((a, b) => a.area.compareTo(b.area));
-    }
-
-    switch (kindRoom) {
-      case 'All':
-        break;
-      case 'Standard':
-        newList = newList
-            .where((element) =>
-                element.kind == 'Standard Room' && element.isAvailable)
-            .toList();
-        break;
-      case 'Loft':
-        newList = newList
-            .where(
-                (element) => element.kind == 'Loft Room' && element.isAvailable)
-            .toList();
-        break;
-      case 'House':
-        newList = newList
-            .where((element) => element.kind == 'House' && element.isAvailable)
-            .toList();
-        break;
-      default:
-        break;
-    }
-    if (valueSearch != null) {
-      newList = newList
-          .where((element) =>
-              element.location
-                  .toLowerCase()
-                  .contains(valueSearch!.toLowerCase()) &&
-              element.isAvailable)
-          .toList();
-    }
-    return newList;
-  }
-
-  List<Room> loadListRoom(List<Room> list) {
-    List<Room> newList = List.from(list);
-    newList = list.where((element) => element.isAvailable == true).toList();
-    if (priceDesc == true) {
-      newList.sort((a, b) => b.price.roomPrice.compareTo(a.price.roomPrice));
-    }
-    if (priceDesc == false) {
-      newList.sort((a, b) => a.price.roomPrice.compareTo(b.price.roomPrice));
-    }
-    if (areaDesc == true) {
-      newList.sort((a, b) => b.area.compareTo(a.area));
-    }
-    if (areaDesc == false) {
-      newList.sort((a, b) => a.area.compareTo(b.area));
-    }
-    switch (kindRoom) {
-      case 'All':
-        break;
-      case 'Standard':
-        newList = newList
-            .where((element) =>
-                element.kind == 'Standard Room' && element.isAvailable)
-            .toList();
-        break;
-      case 'Loft':
-        newList = newList
-            .where(
-                (element) => element.kind == 'Loft Room' && element.isAvailable)
-            .toList();
-        break;
-      case 'House':
-        newList = newList
-            .where((element) => element.kind == 'House' && element.isAvailable)
-            .toList();
-        break;
-      default:
-        break;
-    }
-    if (valueSearch != null) {
-      newList = newList
-          .where((element) =>
-              element.location
-                  .toLowerCase()
-                  .contains(valueSearch!.toLowerCase()) &&
-              element.isAvailable)
-          .toList();
-    }
-    return newList;
-  }
+  
 
   @override
   void initState() {
@@ -168,55 +62,8 @@ class _HomeScreenState extends State<HomeScreen>
     _preferencesPresenter = SharedPreferencesPresenter(this);
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
     _homePresenter = HomePresenter(this);
-    _loadRentalRoom();
-    requestLocationPermission();
-
-    docRef.snapshots().listen(
-          (event) => setState(() {}),
-          onError: (error) => print("Listen failed: $error"),
-        );
-  }
-
-  Future<void> requestLocationPermission() async {
-    PermissionStatus status = await Permission.location.status;
-    if (!status.isGranted) {
-      PermissionStatus result = await Permission.location.request();
-      if (result.isDenied) {
-        print('Permission denied');
-      }
-    }
-  }
-
-  Future<void> _loadRentalRoom() async {
-    CollectionReference rentalroomRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userID)
-        .collection('rentalroom');
-
-    try {
-      // Truy vấn tất cả các documents bên trong rentalroom
-      QuerySnapshot querySnapshot = await rentalroomRef.get();
-
-      if (querySnapshot.docs.isEmpty) {
-        print('No documents found.');
-        return;
-      }
-
-      DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-      Map<String, dynamic> rentalRoomData =
-          documentSnapshot.data() as Map<String, dynamic>;
-
-      setState(() {
-        rentalID = rentalRoomData['roomID'];
-      });
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('yourRoomId', rentalID);
-      if (rentalID.isNotEmpty) {
-        yourRoom = await RoomRepositoryIml().getRoomById(rentalID);
-      }
-    } catch (e) {
-      print('Error getting document: $e');
-    }
+    // loadRentalRoom();
+    _homePresenter?.requestLocationPermission();
   }
 
   @override
@@ -583,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen>
             const Gap(10),
             Expanded(
               child: StreamBuilder<List<Room>>(
-                stream: _roomRepository.getRooms(),
+                stream: _isOwner ? _roomRepository.getOwnedRoom() : _roomRepository.getRooms(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
@@ -596,13 +443,7 @@ class _HomeScreenState extends State<HomeScreen>
                       mainAxisSpacing: 20,
                       crossAxisSpacing: 20,
                       childAspectRatio: 0.7,
-                      children: _isOwner
-                          ? loadListOwnerRoom(roomAvailable)
-                              .map((e) => OwnerRoomItem(room: e))
-                              .toList()
-                          : loadListRoom(roomAvailable)
-                              .map((e) => RoomItem(room: e))
-                              .toList(),
+                      children: roomAvailable.map((e) => OwnerRoomItem(room: e)).toList()
                     );
                   } else {
                     return Container();

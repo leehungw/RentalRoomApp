@@ -25,13 +25,6 @@ class _YourRoomScreenState extends State<YourRoomScreen> {
     _loadInfor();
   }
 
-  // Phương thức để load thông tin từ SharedPreferences
-  Future<void> _loadInfor() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isOwner = prefs.getBool('isOwner') ?? false;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
