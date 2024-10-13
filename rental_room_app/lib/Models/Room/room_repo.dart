@@ -16,8 +16,12 @@ abstract class RoomRepository {
       List<Uint8List> images, String userId, String roomId);
   Stream<List<Room>> getRooms();
   Stream<List<Room>> getOwnedRoom();
+  Future<QuerySnapshot> getOwnedRoomSnapshot();
   Future<Room> getRoomById(String roomID);
   Future<List<Room>> getRecommendedRooms(String userId);
+  Future<void> deleteTenant(String roomId);
+  Future<void> updateRoomAvailability(String roomId, bool isAvail);
+  Future<void> deleteRoom(String roomId);
 }
 
 class RoomRepositoryIml implements RoomRepository {
@@ -163,7 +167,7 @@ class RoomRepositoryIml implements RoomRepository {
     }
     return recommendedRooms;
   }
-  
+
   @override
   Stream<List<Room>> getOwnedRoom() {
     return FirebaseFirestore.instance
@@ -172,5 +176,38 @@ class RoomRepositoryIml implements RoomRepository {
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList());
+  }
+
+  @override
+  Future<void> deleteTenant(String roomId) async {
+    QuerySnapshot tenantSnapshot = await FirebaseFirestore.instance
+        .collection('Rooms')
+        .doc(roomId)
+        .collection('tenant')
+        .get();
+    for (var doc in tenantSnapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
+
+  @override
+  Future<void> updateRoomAvailability(String roomId, bool isAvail) async {
+    await FirebaseFirestore.instance
+        .collection('Rooms')
+        .doc(roomId)
+        .update({'isAvailable': isAvail});
+  }
+
+  @override
+  Future<void> deleteRoom(String roomId) async {
+    await FirebaseFirestore.instance.collection('Rooms').doc(roomId).delete();
+  }
+
+  @override
+  Future<QuerySnapshot<Object?>> getOwnedRoomSnapshot() async {
+    return await FirebaseFirestore.instance
+        .collection('Rooms')
+        .where('ownerId', isEqualTo: currentUserId)
+        .get();
   }
 }

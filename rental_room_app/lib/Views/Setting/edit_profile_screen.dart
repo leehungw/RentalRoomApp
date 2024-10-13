@@ -353,7 +353,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
 
   @override
   void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+      String? userName, bool? isOwner, String? userAvatarUrl, String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? _userName;
       _userAvatarUrl = userAvatarUrl ?? _userAvatarUrl;

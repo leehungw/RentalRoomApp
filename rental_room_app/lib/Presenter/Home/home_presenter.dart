@@ -1,7 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rental_room_app/Contract/Home/home_contract.dart';
-import 'package:rental_room_app/Models/Room/room_model.dart';
 
 class HomePresenter {
   final HomeContract? _view;

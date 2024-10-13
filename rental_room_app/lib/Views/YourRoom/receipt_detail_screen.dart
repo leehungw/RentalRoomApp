@@ -1,13 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:rental_room_app/Contract/YourRoom/receipt_detail_contract.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_model.dart';
 import 'package:rental_room_app/Models/Rental/rental_model.dart';
-import 'package:rental_room_app/Models/Rental/rental_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/User/user_model.dart';
+import 'package:rental_room_app/Presenter/YourRoom/receipt_detail_presenter.dart';
 import 'package:rental_room_app/Views/Notification/list_notification_screen.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
@@ -23,28 +23,27 @@ class ReceiptDetailScreen extends StatefulWidget {
   State<ReceiptDetailScreen> createState() => _ReceiptDetailScreenState();
 }
 
-class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final RentalRepository _rentalRepository = RentalRepositoryIml();
-
-  late String status;
-  Users? user;
-  Rental? rental;
+class _ReceiptDetailScreenState extends State<ReceiptDetailScreen>
+    implements ReceiptDetailContract {
+  late ReceiptDetailPresenter _receiptDetailPresenter;
+  late String _status;
+  Users? _user;
+  Rental? _rental;
   late double total;
 
   @override
   void initState() {
     super.initState();
-    _loadTenant();
-    _changeIsRead();
+    _receiptDetailPresenter = ReceiptDetailPresenter(this);
+    _receiptDetailPresenter.loadTenant(
+        widget.receipt.tenantID, widget.room.roomId);
+    _receiptDetailPresenter.changeIsRead(widget.receipt.receiptID);
     total = widget.room.price.roomPrice +
         widget.room.price.othersPrice +
         widget.room.price.waterPrice * widget.receipt.waterIndex +
         widget.room.price.electricPrice * widget.receipt.electricIndex;
-    status = widget.receipt.status ? 'Paid' : 'Unpaid';
+    _status = widget.receipt.status ? 'Paid' : 'Unpaid';
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +121,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              user?.getUserName ?? 'Nguyen Nguoi Thue',
+                              _user?.getUserName ?? 'Nguyen Nguoi Thue',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -140,7 +139,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              user?.getGender ?? 'Male',
+                              _user?.getGender ?? 'Male',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -158,7 +157,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              user?.getPhone ?? '0123456789',
+                              _user?.getPhone ?? '0123456789',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -176,7 +175,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              rental?.identity ?? '123456789',
+                              _rental?.identity ?? '123456789',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -194,7 +193,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              user?.getEmail ?? 'abcde@gmail.com',
+                              _user?.getEmail ?? 'abcde@gmail.com',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -213,7 +212,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                             ),
                             Text(
                               DateFormat('dd/MM/yyyy').format(
-                                  user?.getBirthday ??
+                                  _user?.getBirthday ??
                                       DateTime.parse('2000-01-01')),
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
@@ -232,7 +231,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              rental?.numberPeople.toString() ?? '1',
+                              _rental?.numberPeople.toString() ?? '1',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -250,7 +249,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              '${rental?.duration.toString() ?? '12'} months',
+                              '${_rental?.duration.toString() ?? '12'} months',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -268,8 +267,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              '${rental?.deposit.toStringAsFixed(0) ??
-                                      '1000000'} VNĐ',
+                              '${_rental?.deposit.toStringAsFixed(0) ?? '1000000'} VNĐ',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -287,7 +285,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              rental?.facebook ?? 'https://www.facebook.com',
+                              _rental?.facebook ?? 'https://www.facebook.com',
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -305,7 +303,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                               ),
                             ),
                             Text(
-                              widget.room.roomName ?? 'Z00',
+                              widget.room.roomName,
                               style: TextStyles.descriptionRoom,
                               textAlign: TextAlign.justify,
                             ),
@@ -598,7 +596,7 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
                         style: TextStyles.receiptStatus,
                       ),
                       Text(
-                        status,
+                        _status,
                         style:
                             TextStyles.descriptionRoom.copyWith(fontSize: 18),
                       ),
@@ -608,14 +606,15 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
               ),
             ),
             const Gap(20),
-            if (status == 'Unpaid')
+            if (_status == 'Unpaid')
               Container(
                 alignment: Alignment.center,
                 child: ModelButton(
                   onTap: () async {
-                    _updateStatus();
+                    _receiptDetailPresenter
+                        .updateStatus(widget.receipt.receiptID);
                     setState(() {
-                      status = 'Paid';
+                      _status = 'Paid';
                     });
                   },
                   name: 'Paid The Bill',
@@ -626,6 +625,30 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen> {
             const Gap(30),
           ],
         ),
+      ),
+    );
+  }
+
+  @override
+  void onGetRental(Rental? rental) {
+    setState(() {
+      _rental = rental;
+    });
+  }
+
+  @override
+  void onGetTenant(Users? user) {
+    setState(() {
+      _user = user;
+    });
+  }
+
+  @override
+  void onGoToListNoti() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ListNotificationScreen(),
       ),
     );
   }

@@ -570,7 +570,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+      String? userName, bool? isOwner, String? userAvatarUrl, String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? "null";
       _isOwner = isOwner ?? true;

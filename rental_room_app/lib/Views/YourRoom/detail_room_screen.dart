@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
@@ -9,14 +7,13 @@ import 'package:rental_room_app/Contract/YourRoom/detail_room_contract.dart';
 import 'package:rental_room_app/Models/Comment/comment_model.dart';
 import 'package:rental_room_app/Models/Comment/comment_repo.dart';
 import 'package:rental_room_app/Models/Rental/rental_model.dart';
-import 'package:rental_room_app/Models/Rental/rental_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/User/user_model.dart';
-import 'package:rental_room_app/Models/User/user_repo.dart';
 import 'package:rental_room_app/Presenter/YourRoom/detail_room_presenter.dart';
+import 'package:rental_room_app/Services/shared_preferences_contract.dart';
+import 'package:rental_room_app/Views/Home/home_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_form_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_room_screen.dart';
-import 'package:rental_room_app/Views/Home/home_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/new_receipt_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/rental_form_screen.dart';
 import 'package:rental_room_app/config/asset_helper.dart';
@@ -26,7 +23,6 @@ import 'package:rental_room_app/widgets/border_container.dart';
 import 'package:rental_room_app/widgets/comment.dart';
 import 'package:rental_room_app/widgets/model_button.dart';
 import 'package:rental_room_app/widgets/sub_image_frame.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailRoomScreen extends StatefulWidget {
   final Room room;
@@ -38,7 +34,7 @@ class DetailRoomScreen extends StatefulWidget {
 }
 
 class _DetailRoomScreenState extends State<DetailRoomScreen>
-    implements DetailRoomContract {
+    implements DetailRoomContract, SharedPreferencesContract {
   DetailRoomPresenter? _detailRoomPresenter;
   final CommentRepository _commentRepository = CommentRepositoryIml();
   final _formKey = GlobalKey<FormState>();
@@ -56,14 +52,12 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   final int numberstar = 5;
   double rating = 0;
 
-  bool isOwner = false;
+  bool _isOwner = false;
 
-  Rental? rental;
-  Users? user;
-  final RentalRepository _rentalRepository = RentalRepositoryIml();
-  String rentalID = '';
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  String status = 'Loading ...';
+  Rental? _rental;
+  Users? _user;
+  String _rentalID = '';
+  String _status = 'Loading ...';
 
   final _commentTextController = TextEditingController();
 
@@ -71,9 +65,8 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   void initState() {
     super.initState();
     _detailRoomPresenter = DetailRoomPresenter(this);
-    _loadInfor();
-    _updateLatestTappedRoom();
-    _beginProgram();
+    _detailRoomPresenter?.updateLatestTappedRoom(widget.room.roomId);
+    _detailRoomPresenter?.beginProgram(widget.room, _rentalID);
   }
 
   @override
@@ -177,7 +170,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                               },
                             ),
                           ),
-                          if (isOwner)
+                          if (_isOwner)
                             Container(
                               width: size.width,
                               alignment: Alignment.bottomRight,
@@ -623,7 +616,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  user?.getUserName ?? 'Nguyen Nguoi Thue',
+                                  _user?.getUserName ?? 'Nguyen Nguoi Thue',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -641,7 +634,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  user?.getGender ?? 'Male',
+                                  _user?.getGender ?? 'Male',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -659,7 +652,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  user?.getPhone ?? '0123456789',
+                                  _user?.getPhone ?? '0123456789',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -677,7 +670,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  rental?.identity ?? '123456789',
+                                  _rental?.identity ?? '123456789',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -695,7 +688,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  user?.getEmail ?? 'abcde@gmail.com',
+                                  _user?.getEmail ?? 'abcde@gmail.com',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -714,7 +707,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                 ),
                                 Text(
                                   DateFormat('dd/MM/yyyy').format(
-                                      user?.getBirthday ??
+                                      _user?.getBirthday ??
                                           DateTime.parse('2000-01-01')),
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
@@ -733,7 +726,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  rental?.numberPeople.toString() ?? '1',
+                                  _rental?.numberPeople.toString() ?? '1',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -751,7 +744,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  '${rental?.duration.toString() ?? '12'} months',
+                                  '${_rental?.duration.toString() ?? '12'} months',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -769,7 +762,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  '${rental?.deposit.toStringAsFixed(0) ?? '1000000'} VNĐ',
+                                  '${_rental?.deposit.toStringAsFixed(0) ?? '1000000'} VNĐ',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
                                 ),
@@ -787,7 +780,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   ),
                                 ),
                                 Text(
-                                  rental?.facebook ??
+                                  _rental?.facebook ??
                                       'https://www.facebook.com',
                                   style: TextStyles.descriptionRoom,
                                   textAlign: TextAlign.justify,
@@ -806,7 +799,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                             style: TextStyles.receiptStatus,
                           ),
                           Text(
-                            status,
+                            _status,
                             style: TextStyles.descriptionRoom
                                 .copyWith(fontSize: 18),
                           ),
@@ -815,7 +808,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                       const Gap(10),
                     ],
                   ),
-                if (!room.isAvailable && !isOwner)
+                if (!room.isAvailable && !_isOwner)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -859,7 +852,8 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                     TextButton(
                                       onPressed: () {
                                         Navigator.pop(context);
-                                        checkOutRoom();
+                                        _detailRoomPresenter?.checkOutRoom(
+                                            widget.room.roomId, _rentalID);
                                       },
                                       child: const Text('OK'),
                                     ),
@@ -875,13 +869,14 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                       ),
                     ],
                   ),
-                if (room.isAvailable && !isOwner)
+                if (room.isAvailable && !_isOwner)
                   Container(
                     alignment: Alignment.center,
                     child: ModelButton(
                       onTap: () async {
-                        bool abc = await isHaveRoom();
-                        if (abc) {
+                        bool isHaveRoom =
+                            await _detailRoomPresenter?.isHaveRoom() ?? false;
+                        if (isHaveRoom) {
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -916,7 +911,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                       width: 150,
                     ),
                   ),
-                if (room.isAvailable && isOwner)
+                if (room.isAvailable && _isOwner)
                   Column(
                     children: [
                       Container(
@@ -959,7 +954,8 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                     TextButton(
                                       onPressed: () {
                                         Navigator.pop(context);
-                                        deleteRoom();
+                                        _detailRoomPresenter
+                                            ?.deleteRoom(widget.room.roomId);
                                       },
                                       child: const Text('CONFIRM'),
                                     ),
@@ -975,12 +971,12 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                       ),
                     ],
                   ),
-                if (!room.isAvailable && isOwner)
+                if (!room.isAvailable && _isOwner)
                   Container(
                     alignment: Alignment.center,
                     child: ModelButton(
                       onTap: () {
-                        if (status != 'No receipt') {
+                        if (_status != 'No receipt') {
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -1005,7 +1001,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                             MaterialPageRoute(
                               builder: (_) => NewReceipt(
                                 room: widget.room,
-                                tenantID: rentalID,
+                                tenantID: _rentalID,
                               ),
                             ),
                           );
@@ -1326,7 +1322,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                                   shrinkWrap: true,
                                   children: comments
                                       .map((e) => CommentWidget(
-                                          comment: e, isOwner: isOwner))
+                                          comment: e, isOwner: _isOwner))
                                       .toList(),
                                 ))
                           ],
@@ -1336,7 +1332,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                         return Container();
                       }
                     }),
-                if (!isOwner)
+                if (!_isOwner)
                   BorderContainer(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1456,5 +1452,87 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
     _commentTextController.clear();
     rating = 0;
     setState(() {});
+  }
+
+  @override
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
+    setState(() {
+      _isOwner = isOwner ?? true;
+      _rentalID = rentalId ?? "";
+    });
+  }
+
+  @override
+  void onGetRental(Rental? rental) {
+    setState(() {
+      _rental = rental;
+      _rentalID = rental?.rentalID ?? "";
+    });
+  }
+
+  @override
+  void onSetReceiptStatus(String status) {
+    setState(() {
+      _status = status;
+    });
+  }
+
+  @override
+  void onGetTenant(Users? user) {
+    setState(() {
+      _user = user;
+    });
+  }
+
+  @override
+  void onLoading() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return const Center(child: CircularProgressIndicator());
+        });
+  }
+
+  @override
+  void onPop() {
+    Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  @override
+  void onRoutingToHome() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const HomeScreen(),
+      ),
+    );
+  }
+
+  @override
+  void onDeleteRoomSuccess() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: ColorPalette.greenText,
+        content: Text(
+          'Xoá phòng trọ thành công!',
+          style: TextStyle(color: ColorPalette.errorColor),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void onDeleteRoomFailed() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        backgroundColor: ColorPalette.greenText,
+        content: Text(
+          'Xoá phòng trọ thất bại!',
+          style: TextStyle(color: ColorPalette.errorColor),
+        ),
+      ),
+    );
   }
 }

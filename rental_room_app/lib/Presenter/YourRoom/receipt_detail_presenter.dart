@@ -1,43 +1,29 @@
 import 'package:rental_room_app/Contract/YourRoom/receipt_detail_contract.dart';
+import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
+import 'package:rental_room_app/Models/Rental/rental_repo.dart';
+import 'package:rental_room_app/Models/User/user_repo.dart';
 
 class ReceiptDetailPresenter {
   final ReceiptDetailContract? _view;
   ReceiptDetailPresenter(this._view);
 
-  Future<void> _changeIsRead() async {
-    await _firestore
-        .collection('Receipts')
-        .doc(widget.receipt.receiptID)
-        .update({'isRead': true});
+  final UserRepository _userRepository = UserRepositoryIml();
+  final RentalRepository _rentalRepository = RentalRepositoryIml();
+  final ReceiptRepository _receiptRepository = ReceiptRepositoryIml();
+
+  Future<void> changeIsRead(String receiptId) async {
+    _receiptRepository.updateIsRead(receiptId, true);
   }
 
-  Future<void> _updateStatus() async {
-    await _firestore
-        .collection('Receipts')
-        .doc(widget.receipt.receiptID)
-        .update({'status': true});
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const ListNotificationScreen(),
-      ),
-    );
+  Future<void> updateStatus(String receiptId) async {
+    _receiptRepository.updateStatus(receiptId, true);
+    _view?.onGoToListNoti();
   }
 
-  Future<void> _loadTenant() async {
-    DocumentSnapshot docUser =
-        await _firestore.collection('users').doc(widget.receipt.tenantID).get();
-    if (docUser.exists) {
-      setState(() {
-        user = Users.fromFirestore(docUser);
-      });
-    }
-    _rentalRepository
-        .getRentalData(widget.receipt.tenantID, widget.room.roomId)
-        .then((value) {
-      setState(() {
-        rental = value;
-      });
+  Future<void> loadTenant(String tenantId, String roomId) async {
+    _view?.onGetTenant(await _userRepository.getUserById(tenantId));
+    _rentalRepository.getRentalData(tenantId, roomId).then((value) {
+      _view?.onGetRental(value);
     });
   }
 }

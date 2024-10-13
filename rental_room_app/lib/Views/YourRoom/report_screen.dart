@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
@@ -23,15 +22,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
   int _selectedIndex = 1;
   int _totalRoom = 0;
 
-  final String oID = FirebaseAuth.instance.currentUser!.uid;
-
   bool isLoading = true;
-  Map<String, int> totalRooms = {
+  Map<String, int> _totalRooms = {
     'Standard Room': 0,
     'Loft Room': 0,
     'House': 0
   };
-  Map<String, int> occupiedRooms = {
+  Map<String, int> _occupiedRooms = {
     'Standard Room': 0,
     'Loft Room': 0,
     'House': 0
@@ -41,7 +38,7 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
   void initState() {
     super.initState();
     _reportPresenter = ReportPresenter(this);
-    _fetchRoomData();
+    _reportPresenter?.fetchRoomData();
   }
 
   @override
@@ -108,13 +105,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              totalRooms['Standard Room']!,
+                                              _totalRooms['Standard Room']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.green,
                                           ),
                                         ),
-                                        Text('${totalRooms['Standard Room']}'),
+                                        Text('${_totalRooms['Standard Room']}'),
                                       ],
                                     ),
                                     const Gap(5),
@@ -124,14 +121,14 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              occupiedRooms['Standard Room']!,
+                                              _occupiedRooms['Standard Room']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.orange,
                                           ),
                                         ),
                                         Text(
-                                            '${occupiedRooms['Standard Room']}'),
+                                            '${_occupiedRooms['Standard Room']}'),
                                       ],
                                     ),
                                   ],
@@ -159,13 +156,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              totalRooms['Loft Room']!,
+                                              _totalRooms['Loft Room']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.green,
                                           ),
                                         ),
-                                        Text('${totalRooms['Loft Room']}'),
+                                        Text('${_totalRooms['Loft Room']}'),
                                       ],
                                     ),
                                     const Gap(5),
@@ -175,13 +172,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              occupiedRooms['Loft Room']!,
+                                              _occupiedRooms['Loft Room']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.orange,
                                           ),
                                         ),
-                                        Text('${occupiedRooms['Loft Room']}'),
+                                        Text('${_occupiedRooms['Loft Room']}'),
                                       ],
                                     ),
                                   ],
@@ -209,13 +206,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              totalRooms['House']!,
+                                              _totalRooms['House']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.green,
                                           ),
                                         ),
-                                        Text('${totalRooms['House']}'),
+                                        Text('${_totalRooms['House']}'),
                                       ],
                                     ),
                                     const Gap(5),
@@ -225,13 +222,13 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
                                         Container(
                                           height: ((size.height * 0.6 - 50) /
                                                   _totalRoom) *
-                                              occupiedRooms['House']!,
+                                              _occupiedRooms['House']!,
                                           width: size.width / 12,
                                           decoration: const BoxDecoration(
                                             color: Colors.orange,
                                           ),
                                         ),
-                                        Text('${occupiedRooms['House']}'),
+                                        Text('${_occupiedRooms['House']}'),
                                       ],
                                     ),
                                   ],
@@ -356,5 +353,18 @@ class _ReportScreenState extends State<ReportScreen> implements ReportContract {
         ],
       ),
     );
+  }
+
+  @override
+  void onFetchDataSuccess(
+      Map<String, int> tempTotalRooms, Map<String, int> tempOccupiedRooms) {
+    setState(() {
+      _totalRooms = tempTotalRooms;
+      _occupiedRooms = tempOccupiedRooms;
+      isLoading = false;
+      tempTotalRooms.forEach((key, value) {
+        _totalRoom += value;
+      });
+    });
   }
 }

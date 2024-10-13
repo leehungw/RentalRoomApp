@@ -233,7 +233,7 @@ class _NotificationScreenState extends State<NotificationScreen>
 
   @override
   void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+      String? userName, bool? isOwner, String? userAvatarUrl, String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? "Nguyen van a";
       _userAvatarUrl = userAvatarUrl ?? "";

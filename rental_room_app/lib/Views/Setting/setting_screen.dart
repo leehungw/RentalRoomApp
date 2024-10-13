@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rental_room_app/Contract/Setting/setting_screen_contract.dart';
+import 'package:rental_room_app/Presenter/Setting/setting_screen_presenter.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
-import 'package:rental_room_app/Models/Room/room_repo.dart';
 import 'package:rental_room_app/Models/User/user_repo.dart';
 import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
@@ -12,8 +13,6 @@ import 'package:rental_room_app/config/asset_helper.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
@@ -23,8 +22,9 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen>
-    implements SharedPreferencesContract {
+    implements SharedPreferencesContract, SettingScreenContract {
   SharedPreferencesPresenter? _preferencesPresenter;
+  late SettingScreenPresenter _settingScreenPresenter;
   final UserRepository _userRepository = UserRepositoryIml();
   int _selectedIndex = 3;
   String _userName = "nguyen van a";
@@ -38,9 +38,9 @@ class _SettingScreenState extends State<SettingScreen>
   @override
   void initState() {
     super.initState();
+    _settingScreenPresenter = SettingScreenPresenter(this);
     _preferencesPresenter = SharedPreferencesPresenter(this);
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
-    _loadYourRoom();
   }
 
   @override
@@ -177,7 +177,7 @@ class _SettingScreenState extends State<SettingScreen>
             const Gap(20),
             GestureDetector(
               onTap: () {
-                launchEmailApp();
+                _settingScreenPresenter.launchEmailApp();
               },
               child: Row(
                 children: [
@@ -370,13 +370,34 @@ class _SettingScreenState extends State<SettingScreen>
   }
 
   @override
-  void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? "nguyen van a";
       _email = email ?? "nguyenvana@gmail.com ";
       _isOwner = isOwner ?? true;
       _userAvatarUrl = userAvatarUrl ?? "";
+      yourRoom = _settingScreenPresenter.loadRoomInfo(rentalId ?? "") as Room;
     });
+  }
+
+  @override
+  void onLaunchEmailFailed() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Lỗi'),
+            content: const Text('Thiết bị của bạn không có ứng dụng email!'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('OKE'),
+              )
+            ],
+          );
+        });
   }
 }

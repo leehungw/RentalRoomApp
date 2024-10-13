@@ -1,6 +1,8 @@
+import 'package:rental_room_app/Models/Rental/rental_model.dart';
+import 'package:rental_room_app/Models/User/user_model.dart';
+
 abstract class ReceiptDetailContract {
-  void onCreateSucceeded();
-  void onCreateFailed();
-  void onWaitingProgressBar();
-  void onPopContext();
+  void onGoToListNoti();
+  void onGetRental(Rental? rental);
+  void onGetTenant(Users? user);
 }

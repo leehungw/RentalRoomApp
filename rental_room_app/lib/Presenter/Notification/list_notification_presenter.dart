@@ -1,22 +1,17 @@
 import 'package:rental_room_app/Contract/Notification/list_notification_contract.dart';
+import 'package:rental_room_app/Models/Room/room_model.dart';
+import 'package:rental_room_app/Models/Room/room_repo.dart';
 
 class ListNotificationPresenter {
   final ListNotificationContract? _view;
   ListNotificationPresenter(this._view);
 
-  Future<void> _loadYourRoom() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    rentalID = prefs.getString('yourRoomId') ?? '';
+  final RoomRepository _roomRepository = RoomRepositoryIml();
+
+  Future<Room?> loadRoomInfo(String rentalID) async {
     if (rentalID.isNotEmpty) {
-      yourRoom = await RoomRepositoryIml().getRoomById(rentalID);
+      return await _roomRepository.getRoomById(rentalID);
     }
-  }
-
-  List<Receipt> loadListReceipt(List<Receipt> list) {
-    List<Receipt> newList = List.from(list);
-
-    newList = list.where((element) => element.tenantID == uID).toList();
-    newList.sort((a, b) => b.createdDay.compareTo(a.createdDay));
-    return newList;
+    return null;
   }
 }

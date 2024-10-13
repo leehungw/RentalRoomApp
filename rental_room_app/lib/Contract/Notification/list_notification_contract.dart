@@ -1,1 +1,2 @@
-class ListNotificationContract {}
+abstract class ListNotificationContract {
+}

@@ -1,1 +1,3 @@
-abstract class YourRoomContract {}
+abstract class YourRoomContract {
+  
+}

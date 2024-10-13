@@ -2,18 +2,18 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rental_room_app/Contract/Notification/list_notification_contract.dart';
+import 'package:rental_room_app/Presenter/Notification/list_notification_presenter.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_model.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
-import 'package:rental_room_app/Models/Room/room_repo.dart';
 import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:rental_room_app/widgets/receipt_item.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ListNotificationScreen extends StatefulWidget {
   const ListNotificationScreen({super.key});
@@ -23,24 +23,25 @@ class ListNotificationScreen extends StatefulWidget {
 }
 
 class _ListNotificationScreenState extends State<ListNotificationScreen>
-    implements SharedPreferencesContract {
+    implements SharedPreferencesContract, ListNotificationContract {
   SharedPreferencesPresenter? _preferencesPresenter;
+  late ListNotificationPresenter _listNotiPresenter;
   int _selectedIndex = 2;
   bool _isOwner = true;
 
-  late String rentalID;
-  late Room yourRoom;
   String? uID = FirebaseAuth.instance.currentUser?.uid;
 
   final ReceiptRepository _receiptRepository = ReceiptRepositoryIml();
-  late List<Receipt> receipts;
+  late List<Receipt> _receipts;
+  late String rentalID;
+  late Room yourRoom;
 
   @override
   void initState() {
     super.initState();
     _preferencesPresenter = SharedPreferencesPresenter(this);
+    _listNotiPresenter = ListNotificationPresenter(this);
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
-    _loadYourRoom();
   }
 
   @override
@@ -92,9 +93,9 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
                       child: Text('Something went wrong! ${snapshot.error}'),
                     );
                   } else if (snapshot.hasData) {
-                    receipts = snapshot.data!;
+                    _receipts = snapshot.data!;
                     return ListView(
-                      children: loadListReceipt(receipts)
+                      children: _receipts
                           .map((e) => ReceiptItem(receipt: e))
                           .toList(),
                     );
@@ -204,10 +205,11 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
   }
 
   @override
-  void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email) {
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
     setState(() {
       _isOwner = isOwner ?? true;
+      yourRoom = _listNotiPresenter.loadRoomInfo(rentalId ?? "") as Room;
     });
   }
 }

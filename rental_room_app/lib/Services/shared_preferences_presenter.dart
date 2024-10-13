@@ -12,7 +12,8 @@ class SharedPreferencesPresenter {
     bool? isOwner = prefs.getBool('isOwner');
     String userAvatarUrl = prefs.getString('avatar') ?? '';
     String email = prefs.getString('email') ?? 'nguyenvana@gmail.com';
+    String rentalID = prefs.getString('yourRoomId') ?? '';
 
-    _view?.updateView(userName, isOwner, userAvatarUrl, email);
+    _view?.updateView(userName, isOwner, userAvatarUrl, email, rentalID);
   }
 }

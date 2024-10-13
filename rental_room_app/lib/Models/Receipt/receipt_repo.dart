@@ -5,6 +5,9 @@ abstract class ReceiptRepository {
   Future<void> uploadReceipt(Receipt receipt);
   Stream<List<Receipt>> getReceipts();
   Future<Receipt> getReceiptById(String receiptID);
+  Future<QuerySnapshot> getReceiptByRoomId(String roomId, String rentalId);
+  Future<void> updateIsRead(String receiptId, bool isRead);
+  Future<void> updateStatus(String receiptId, bool status);
 }
 
 class ReceiptRepositoryIml implements ReceiptRepository {
@@ -38,5 +41,35 @@ class ReceiptRepositoryIml implements ReceiptRepository {
     } else {
       throw Exception('This Receipt data not found');
     }
+  }
+
+  @override
+  Future<QuerySnapshot> getReceiptByRoomId(
+      String roomId, String rentalId) async {
+    QuerySnapshot doc = await FirebaseFirestore.instance
+        .collection('Receipts')
+        .where('roomID', isEqualTo: roomId)
+        .where('tenantID', isEqualTo: rentalId)
+        .orderBy('createdDay', descending: true)
+        .limit(1)
+        .get();
+
+    return doc;
+  }
+
+  @override
+  Future<void> updateIsRead(String receiptId, bool isRead) async {
+    await FirebaseFirestore.instance
+        .collection('Receipts')
+        .doc(receiptId)
+        .update({'isRead': isRead});
+  }
+
+  @override
+  Future<void> updateStatus(String receiptId, bool status) async {
+    await FirebaseFirestore.instance
+        .collection('Receipts')
+        .doc(receiptId)
+        .update({'status': true});
   }
 }

@@ -10,7 +10,9 @@ abstract class UserRepository {
       String email, String password);
   String? get userId;
   Future<Users> getUserById(String userId);
+  Future<Users?> getUserByRentalId(String rentalId, String roomId);
   void updateLatestTappedRoom(String roomId);
+  void deleteRental(String rentalId);
 }
 
 class UserRepositoryIml implements UserRepository {
@@ -69,5 +71,38 @@ class UserRepositoryIml implements UserRepository {
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser?.uid)
         .update({"latestTappedRoomId": roomId});
+  }
+
+  @override
+  Future<Users?> getUserByRentalId(String rentalId, String roomId) async {
+    DocumentSnapshot doc = await _firestore
+        .collection('users')
+        .doc(rentalId)
+        .collection('rentalroom')
+        .doc(roomId)
+        .get();
+    if (doc.exists) {
+      DocumentSnapshot docUser =
+          await _firestore.collection('users').doc(rentalId).get();
+      if (docUser.exists) {
+        return Users.fromFirestore(docUser);
+      } else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> deleteRental(String rentalId) async {
+    QuerySnapshot rentalroomSnapshot = await _firestore
+        .collection('users')
+        .doc(rentalId)
+        .collection('rentalroom')
+        .get();
+    for (var doc in rentalroomSnapshot.docs) {
+      await doc.reference.delete();
+    }
   }
 }

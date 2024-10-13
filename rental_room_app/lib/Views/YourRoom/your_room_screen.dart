@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rental_room_app/Services/shared_preferences_contract.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class YourRoomScreen extends StatefulWidget {
   const YourRoomScreen({super.key});
@@ -14,7 +14,8 @@ class YourRoomScreen extends StatefulWidget {
   State<YourRoomScreen> createState() => _YourRoomScreenState();
 }
 
-class _YourRoomScreenState extends State<YourRoomScreen> {
+class _YourRoomScreenState extends State<YourRoomScreen>
+    implements SharedPreferencesContract {
   int _selectedIndex = 1;
 
   bool _isOwner = false;
@@ -22,9 +23,7 @@ class _YourRoomScreenState extends State<YourRoomScreen> {
   @override
   void initState() {
     super.initState();
-    _loadInfor();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +61,8 @@ class _YourRoomScreenState extends State<YourRoomScreen> {
                   width: 2,
                 ),
               ),
-              child: const Text('You need to rental a room to use this function!!!'),
+              child: const Text(
+                  'You need to rental a room to use this function!!!'),
             ),
           ),
           Expanded(child: Container()),
@@ -148,5 +148,13 @@ class _YourRoomScreenState extends State<YourRoomScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
+    setState(() {
+      _isOwner = isOwner ?? false;
+    });
   }
 }
