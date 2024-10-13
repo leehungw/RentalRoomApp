@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rental_room_app/Views/Setting/edit_profile_screen.dart';
 import 'package:rental_room_app/Views/Login/change_password_screen.dart';
+import 'package:rental_room_app/Views/YourRoom/all_room_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/create_room_screen.dart';
 import 'package:rental_room_app/Views/Home/home_screen.dart';
 import 'package:rental_room_app/Views/Notification/list_notification_screen.dart';
