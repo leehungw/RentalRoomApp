@@ -32,8 +32,8 @@ class _SettingScreenState extends State<SettingScreen>
   bool _isOwner = true;
   String _userAvatarUrl = "";
 
-  late String rentalID;
-  late Room yourRoom;
+  late String _rentalID;
+  late Room _yourRoom;
 
   @override
   void initState() {
@@ -274,7 +274,7 @@ class _SettingScreenState extends State<SettingScreen>
           backgroundColor: ColorPalette.backgroundColor,
           currentIndex: _selectedIndex,
           onTap: (id) {
-            if (!_isOwner && rentalID.isNotEmpty) {
+            if (!_isOwner && _rentalID.isNotEmpty) {
             } else {
               setState(() {
                 _selectedIndex = id;
@@ -288,12 +288,12 @@ class _SettingScreenState extends State<SettingScreen>
                 if (_isOwner) {
                   GoRouter.of(context).go('/report');
                 } else {
-                  if (rentalID.isNotEmpty) {
+                  if (_rentalID.isNotEmpty) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => DetailRoomScreen(
-                          room: yourRoom,
+                          room: _yourRoom,
                         ),
                       ),
                     );
@@ -377,7 +377,8 @@ class _SettingScreenState extends State<SettingScreen>
       _email = email ?? "nguyenvana@gmail.com ";
       _isOwner = isOwner ?? true;
       _userAvatarUrl = userAvatarUrl ?? "";
-      yourRoom = _settingScreenPresenter.loadRoomInfo(rentalId ?? "") as Room;
+      _settingScreenPresenter.loadRoomInfo(rentalId ?? "");
+      _rentalID = rentalId ?? "";
     });
   }
 
@@ -399,5 +400,10 @@ class _SettingScreenState extends State<SettingScreen>
             ],
           );
         });
+  }
+
+  @override
+  void onUpdateRoom(Room room) {
+    _yourRoom = room;
   }
 }

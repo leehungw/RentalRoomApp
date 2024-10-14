@@ -37,5 +37,6 @@ class ReportPresenter {
         print('Room type $roomType is not recognized.');
       }
     }
+    _view?.onFetchDataSuccess(tempTotalRooms, tempOccupiedRooms);
   }
 }

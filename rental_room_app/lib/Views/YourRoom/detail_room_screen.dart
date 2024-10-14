@@ -11,6 +11,7 @@ import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/User/user_model.dart';
 import 'package:rental_room_app/Presenter/YourRoom/detail_room_presenter.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
+import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/Views/Home/home_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_form_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_room_screen.dart';
@@ -38,6 +39,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   DetailRoomPresenter? _detailRoomPresenter;
   final CommentRepository _commentRepository = CommentRepositoryIml();
   final _formKey = GlobalKey<FormState>();
+  late SharedPreferencesPresenter _sharedPreferencesPresenter;
 
   bool isPressed = false;
   final PageController _pageController = PageController();
@@ -65,6 +67,8 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   void initState() {
     super.initState();
     _detailRoomPresenter = DetailRoomPresenter(this);
+    _sharedPreferencesPresenter = SharedPreferencesPresenter(this);
+    _sharedPreferencesPresenter.getUserInfoFromSharedPreferences();
     _detailRoomPresenter?.updateLatestTappedRoom(widget.room.roomId);
     _detailRoomPresenter?.beginProgram(widget.room, _rentalID);
   }

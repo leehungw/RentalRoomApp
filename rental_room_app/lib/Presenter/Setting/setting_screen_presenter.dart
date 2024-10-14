@@ -1,19 +1,17 @@
 import 'package:rental_room_app/Contract/Setting/setting_screen_contract.dart';
-import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/Room/room_repo.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingScreenPresenter {
-  SettingScreenContract? _view;
+  final SettingScreenContract? _view;
   SettingScreenPresenter(this._view);
 
   final RoomRepository _roomRepository = RoomRepositoryIml();
 
-  Future<Room?> loadRoomInfo(String rentalID) async {
+  void loadRoomInfo(String rentalID) async {
     if (rentalID.isNotEmpty) {
-      return await _roomRepository.getRoomById(rentalID);
+      _view?.onUpdateRoom(await _roomRepository.getRoomById(rentalID));
     }
-    return null;
   }
 
   Future<void> launchEmailApp() async {

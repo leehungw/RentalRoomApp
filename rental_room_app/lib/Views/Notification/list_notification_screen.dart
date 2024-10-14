@@ -29,12 +29,10 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
   int _selectedIndex = 2;
   bool _isOwner = true;
 
-  String? uID = FirebaseAuth.instance.currentUser?.uid;
-
   final ReceiptRepository _receiptRepository = ReceiptRepositoryIml();
   late List<Receipt> _receipts;
-  late String rentalID;
-  late Room yourRoom;
+  late String _rentalID;
+  late Room _yourRoom;
 
   @override
   void initState() {
@@ -109,7 +107,7 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
           backgroundColor: ColorPalette.backgroundColor,
           currentIndex: _selectedIndex,
           onTap: (id) {
-            if (!_isOwner && rentalID.isNotEmpty) {
+            if (!_isOwner && _rentalID.isNotEmpty) {
             } else {
               setState(() {
                 _selectedIndex = id;
@@ -123,12 +121,12 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
                 if (_isOwner) {
                   GoRouter.of(context).go('/report');
                 } else {
-                  if (rentalID.isNotEmpty) {
+                  if (_rentalID.isNotEmpty) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => DetailRoomScreen(
-                          room: yourRoom,
+                          room: _yourRoom,
                         ),
                       ),
                     );
@@ -209,7 +207,13 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
       String? email, String? rentalId) {
     setState(() {
       _isOwner = isOwner ?? true;
-      yourRoom = _listNotiPresenter.loadRoomInfo(rentalId ?? "") as Room;
+      _rentalID = rentalId ?? "";
+      _listNotiPresenter.loadRoomInfo(rentalId ?? "");
     });
+  }
+
+  @override
+  void onUpdateRoom(Room room) {
+    _yourRoom = room;
   }
 }

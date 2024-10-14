@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
+import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
@@ -17,12 +18,15 @@ class YourRoomScreen extends StatefulWidget {
 class _YourRoomScreenState extends State<YourRoomScreen>
     implements SharedPreferencesContract {
   int _selectedIndex = 1;
+  late SharedPreferencesPresenter _sharedPreferencesPresenter;
 
   bool _isOwner = false;
 
   @override
   void initState() {
     super.initState();
+    _sharedPreferencesPresenter = SharedPreferencesPresenter(this);
+    _sharedPreferencesPresenter.getUserInfoFromSharedPreferences();
   }
 
   @override
