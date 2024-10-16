@@ -36,14 +36,14 @@ class _HomeScreenState extends State<HomeScreen>
   String _userName = "nguyen van a";
   bool _isOwner = true;
   String _userAvatarUrl = '';
-  bool isVisiable = false;
-  bool isVisibleFilter = false;
-  int soLuongPhongCoSan = 6;
-  bool show = true;
+  bool _isVisiable = false;
+  bool _isVisibleFilter = false;
+  int _soLuongPhongCoSan = 6;
+  bool _show = true;
 
-  late List<Room> roomAvailable;
-  String rentalID = '';
-  late Room yourRoom;
+  late List<Room> _roomAvailable;
+  String _rentalID = '';
+  late Room _yourRoom;
 
   bool? priceDesc;
   bool? areaDesc;
@@ -54,15 +54,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   String _recommendTextError = "Service Unavailable!";
 
-  
-
   @override
   void initState() {
     super.initState();
     _preferencesPresenter = SharedPreferencesPresenter(this);
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
     _homePresenter = HomePresenter(this);
-    // loadRentalRoom();
     _homePresenter?.requestLocationPermission();
   }
 
@@ -157,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen>
                       customBorder: const CircleBorder(),
                       onTap: () {
                         setState(() {
-                          isVisibleFilter = !isVisibleFilter;
+                          _isVisibleFilter = !_isVisibleFilter;
                         });
                       },
                       child: const Icon(
@@ -177,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen>
             Container(
               alignment: Alignment.centerLeft,
               child: Visibility(
-                visible: isVisibleFilter,
+                visible: _isVisibleFilter,
                 child: Column(
                   children: [
                     Row(
@@ -331,18 +328,18 @@ class _HomeScreenState extends State<HomeScreen>
                         GestureDetector(
                           onTap: () {
                             setState(() {
-                              show = !show;
+                              _show = !_show;
                             });
                           },
                           child: Row(
                             children: [
                               Text(
-                                show ? 'Hide' : 'Show',
+                                _show ? 'Hide' : 'Show',
                                 style: TextStyles.seeAll.copyWith(fontSize: 14),
                               ),
                               const Gap(3),
                               Icon(
-                                show
+                                _show
                                     ? FontAwesomeIcons.angleUp
                                     : FontAwesomeIcons.angleDown,
                                 size: 15,
@@ -357,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen>
                     _isOwner
                         ? Container()
                         : Visibility(
-                            visible: show,
+                            visible: _show,
                             child: FutureBuilder(
                               future: _roomRepository.getRecommendedRooms(
                                   FirebaseAuth.instance.currentUser!.uid),
@@ -430,21 +427,24 @@ class _HomeScreenState extends State<HomeScreen>
             const Gap(10),
             Expanded(
               child: StreamBuilder<List<Room>>(
-                stream: _isOwner ? _roomRepository.getOwnedRoom() : _roomRepository.getRooms(),
+                stream: _isOwner
+                    ? _roomRepository.getOwnedRoom()
+                    : _roomRepository.getRooms(),
                 builder: (context, snapshot) {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text('Something went wrong! ${snapshot.error}'),
                     );
                   } else if (snapshot.hasData) {
-                    roomAvailable = snapshot.data!;
+                    _roomAvailable = snapshot.data!;
                     return GridView.count(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 20,
-                      crossAxisSpacing: 20,
-                      childAspectRatio: 0.7,
-                      children: roomAvailable.map((e) => OwnerRoomItem(room: e)).toList()
-                    );
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 20,
+                        crossAxisSpacing: 20,
+                        childAspectRatio: 0.7,
+                        children: _roomAvailable
+                            .map((e) => OwnerRoomItem(room: e))
+                            .toList());
                   } else {
                     return Container();
                   }
@@ -472,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen>
         backgroundColor: ColorPalette.backgroundColor,
         currentIndex: _selectedIndex,
         onTap: (id) {
-          if (!_isOwner && rentalID.isNotEmpty) {
+          if (!_isOwner && _rentalID.isNotEmpty) {
           } else {
             setState(() {
               _selectedIndex = id;
@@ -486,12 +486,12 @@ class _HomeScreenState extends State<HomeScreen>
               if (_isOwner) {
                 GoRouter.of(context).go('/report');
               } else {
-                if (rentalID.isNotEmpty) {
+                if (_rentalID.isNotEmpty) {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => DetailRoomScreen(
-                        room: yourRoom,
+                        room: _yourRoom,
                       ),
                     ),
                   );
@@ -569,24 +569,38 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   @override
-  void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email, String? rentalId) {
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? "null";
       _isOwner = isOwner ?? true;
       _userAvatarUrl = userAvatarUrl ?? "";
+      _rentalID = rentalId ?? "";
+
+      if (_rentalID.isNotEmpty) {
+        _homePresenter?.loadRentalRoom(_rentalID);
+      }
     });
   }
 
   @override
   void onRecommendFailed() {
-    _recommendTextError = "Service Unavailable!";
-    setState(() {});
+    setState(() {
+      _recommendTextError = "Service Unavailable!";
+    });
   }
 
   @override
   void onRecommendSuccess() {
-    _recommendTextError = "";
-    setState(() {});
+    setState(() {
+      _recommendTextError = "";
+    });
+  }
+
+  @override
+  void onUpdateYourRoom(Room yourRoom) {
+    setState(() {
+      _yourRoom = yourRoom;
+    });
   }
 }

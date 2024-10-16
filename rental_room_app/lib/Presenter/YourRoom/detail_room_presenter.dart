@@ -60,15 +60,16 @@ class DetailRoomPresenter {
     _userRepository.updateLatestTappedRoom(roomId);
   }
 
-  Future<void> beginProgram(Room room, String rentalID) async {
+  Future<void> beginProgram(Room room) async {
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     if (!room.isAvailable) {
-      await _loadReceiptStatus(room.roomId, rentalID);
-      _rentalRepository.getRentalData(rentalID, room.roomId).then((value) {
+      await _loadReceiptStatus(room.roomId, userId);
+      _rentalRepository.getRentalData(userId, room.roomId).then((value) {
         _view?.onGetRental(value);
       });
 
       _view?.onGetTenant(
-          await _userRepository.getUserByRentalId(rentalID, room.roomId));
+          await _userRepository.getUserByRentalId(userId, room.roomId));
     } else {
       _view?.onGetRental(null);
     }

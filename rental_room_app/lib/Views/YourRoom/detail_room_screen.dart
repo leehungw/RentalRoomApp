@@ -70,7 +70,6 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
     _sharedPreferencesPresenter = SharedPreferencesPresenter(this);
     _sharedPreferencesPresenter.getUserInfoFromSharedPreferences();
     _detailRoomPresenter?.updateLatestTappedRoom(widget.room.roomId);
-    _detailRoomPresenter?.beginProgram(widget.room, _rentalID);
   }
 
   @override
@@ -1464,6 +1463,9 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
     setState(() {
       _isOwner = isOwner ?? true;
       _rentalID = rentalId ?? "";
+      if (_rentalID.isNotEmpty) {
+        _detailRoomPresenter?.beginProgram(widget.room);
+      }
     });
   }
 
@@ -1471,7 +1473,6 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   void onGetRental(Rental? rental) {
     setState(() {
       _rental = rental;
-      _rentalID = rental?.rentalID ?? "";
     });
   }
 

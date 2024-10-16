@@ -1,9 +1,13 @@
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rental_room_app/Contract/Home/home_contract.dart';
+import 'package:rental_room_app/Models/Room/room_model.dart';
+import 'package:rental_room_app/Models/Room/room_repo.dart';
 
 class HomePresenter {
   final HomeContract? _view;
   HomePresenter(this._view);
+
+  final _roomRepository = RoomRepositoryIml();
 
   // List<Room> filterRoom(List<Room> list) {
   //   List<Room> newList = List.from(list);
@@ -66,35 +70,8 @@ class HomePresenter {
     }
   }
 
-  // Future<void> loadRentalRoom() async {
-  //   CollectionReference rentalroomRef = FirebaseFirestore.instance
-  //       .collection('users')
-  //       .doc(userID)
-  //       .collection('rentalroom');
-
-  //   try {
-  //     // Truy vấn tất cả các documents bên trong rentalroom
-  //     QuerySnapshot querySnapshot = await rentalroomRef.get();
-
-  //     if (querySnapshot.docs.isEmpty) {
-  //       print('No documents found.');
-  //       return;
-  //     }
-
-  //     DocumentSnapshot documentSnapshot = querySnapshot.docs.first;
-  //     Map<String, dynamic> rentalRoomData =
-  //         documentSnapshot.data() as Map<String, dynamic>;
-
-  //     setState(() {
-  //       rentalID = rentalRoomData['roomID'];
-  //     });
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     prefs.setString('yourRoomId', rentalID);
-  //     if (rentalID.isNotEmpty) {
-  //       yourRoom = await RoomRepositoryIml().getRoomById(rentalID);
-  //     }
-  //   } catch (e) {
-  //     print('Error getting document: $e');
-  //   }
-  // }
+  Future<void> loadRentalRoom(String rentalId) async {
+    Room rentedRoom = await _roomRepository.getRoomById(rentalId);
+    _view?.onUpdateYourRoom(rentedRoom);
+  }
 }
