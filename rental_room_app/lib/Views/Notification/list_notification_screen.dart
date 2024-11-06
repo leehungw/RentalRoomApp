@@ -9,6 +9,8 @@ import 'package:rental_room_app/Models/Receipt/receipt_model.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
+import 'package:rental_room_app/Views/Notification/Subviews/list_notification_view.dart';
+import 'package:rental_room_app/Views/Notification/Subviews/power_cut_view.dart';
 import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
@@ -29,10 +31,10 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
   int _selectedIndex = 2;
   bool _isOwner = true;
 
-  final ReceiptRepository _receiptRepository = ReceiptRepositoryIml();
-  late List<Receipt> _receipts;
   late String _rentalID;
   late Room _yourRoom;
+
+  int _selectedTab = 0;
 
   @override
   void initState() {
@@ -44,65 +46,78 @@ class _ListNotificationScreenState extends State<ListNotificationScreen>
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
         title: Center(
-          child: Text(
-            'Notification',
-            style: TextStyles.title.copyWith(
-              fontSize: 32,
-              shadows: [
-                const Shadow(
-                  color: Colors.black12,
-                  offset: Offset(3, 6),
-                  blurRadius: 6,
-                )
+          child: Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTab = 0;
+                    });
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == 0
+                          ? ColorPalette.primaryColor
+                          : ColorPalette.backgroundColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Notification',
+                      style: TextStyles.title.copyWith(
+                        fontSize: 18,
+                        color: _selectedIndex == 0
+                            ? Colors.white
+                            : ColorPalette.primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedTab = 1; // Show Power Cut Schedule view
+                    });
+                  },
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: _selectedIndex == 1
+                          ? ColorPalette.primaryColor
+                          : ColorPalette.backgroundColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Power Cut Schedule',
+                      style: TextStyles.title.copyWith(
+                        fontSize: 18,
+                        color: _selectedIndex == 1
+                            ? Colors.white
+                            : ColorPalette.primaryColor,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
-      body: _isOwner
-          ? Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                margin: EdgeInsets.symmetric(
-                    horizontal: 15, vertical: size.height * 0.37),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: ColorPalette.backgroundColor,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: ColorPalette.primaryColor,
-                    width: 2,
-                  ),
-                ),
-                child: const Text('You have no Notifications!!!'),
-              ),
+      body: _selectedTab == 0
+          ? NotificationView(
+              isOwner: _isOwner,
             )
-          : Expanded(
-              child: StreamBuilder<List<Receipt>>(
-                stream: _receiptRepository.getReceipts(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Something went wrong! ${snapshot.error}'),
-                    );
-                  } else if (snapshot.hasData) {
-                    _receipts = snapshot.data!;
-                    return ListView(
-                      children: _receipts
-                          .map((e) => ReceiptItem(receipt: e))
-                          .toList(),
-                    );
-                  } else {
-                    return Container();
-                  }
-                },
-              ),
-            ),
+          : const PowerCutScheduleView(),
       bottomNavigationBar: SalomonBottomBar(
           backgroundColor: ColorPalette.backgroundColor,
           currentIndex: _selectedIndex,
