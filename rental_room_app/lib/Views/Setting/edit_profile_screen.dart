@@ -36,6 +36,12 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   String _userName = "nguyen van a";
   String _email = "nguyenvana@gmail.com";
   String _userAvatarUrl = '';
+  bool _isOwner = false;
+  final TextEditingController _accountNumberController =
+      TextEditingController();
+  final TextEditingController _accountNameController = TextEditingController();
+  List<Map<String, dynamic>> _bankList = [];
+  String? _selectedBank;
 
   @override
   void initState() {
@@ -43,6 +49,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
     _editProfilePresenter = EditProfilePresenter(this);
     _preferencesPresenter = SharedPreferencesPresenter(this);
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
+    _editProfilePresenter?.fetchBankList();
   }
 
   @override
@@ -250,16 +257,140 @@ class _EditProfileScreenState extends State<EditProfileScreen>
                         },
                       ),
                     ),
+                    const Gap(5),
+                    if (_isOwner) ...[
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 50),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Banking Information",
+                              style: TextStyles.timenotifi.medium
+                                  .copyWith(color: ColorPalette.darkBlueText),
+                            )
+                          ],
+                        ),
+                      ),
+                      const Gap(5),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: "Select Bank",
+                              filled: true,
+                              fillColor: ColorPalette.bgTextFieldColor,
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 10,
+                                    color: ColorPalette.bgTextFieldColor),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(
+                                    width: 5,
+                                    color: ColorPalette.bgTextFieldColor),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                            value: _selectedBank,
+                            items:
+                                _bankList.map<DropdownMenuItem<String>>((bank) {
+                              return DropdownMenuItem<String>(
+                                value: bank['bin'],
+                                child: Row(
+                                  children: [
+                                    (bank['logo'] as String).isNotEmpty
+                                        ? Image.network(
+                                            bank['logo'],
+                                            width: 30,
+                                            height: 30,
+                                          )
+                                        : const SizedBox(height: 30, width: 30),
+                                    const SizedBox(width: 10),
+                                    Text(bank['shortName']),
+                                  ],
+                                ),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedBank = value;
+                              });
+                            },
+                            validator:
+                                _editProfilePresenter?.validateSelectedBank),
+                      ),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: TextFormField(
+                          controller: _accountNumberController,
+                          keyboardType: TextInputType.number,
+                          style: TextStyles.h5,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: ColorPalette.bgTextFieldColor,
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  width: 10,
+                                  color: ColorPalette.bgTextFieldColor),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  width: 5,
+                                  color: ColorPalette.bgTextFieldColor),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            labelText: "Account Number",
+                            labelStyle: TextStyles.h5
+                                .copyWith(color: ColorPalette.rankText),
+                            helperText: " ",
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: TextFormField(
+                          controller: _accountNameController,
+                          keyboardType: TextInputType.text,
+                          style: TextStyles.h5,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: ColorPalette.bgTextFieldColor,
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  width: 10,
+                                  color: ColorPalette.bgTextFieldColor),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: const BorderSide(
+                                  width: 5,
+                                  color: ColorPalette.bgTextFieldColor),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            labelText: "Account Name",
+                            labelStyle: TextStyles.h5
+                                .copyWith(color: ColorPalette.rankText),
+                            helperText: " ",
+                          ),
+                        ),
+                      ),
+                    ],
                     const Gap(20),
                     ModelButton(
                         onTap: () {
                           if (_formKey.currentState!.validate()) {
                             _editProfilePresenter?.onUpdateProfile(
-                              _fullnameTextController.text,
-                              _gender,
-                              _phoneTextController.text,
-                              birthday,
-                            );
+                                _fullnameTextController.text,
+                                _gender,
+                                _phoneTextController.text,
+                                birthday,
+                                _selectedBank ?? "",
+                                _accountNumberController.text,
+                                _accountNameController.text);
                           }
                         },
                         name: "Save",
@@ -352,12 +483,35 @@ class _EditProfileScreenState extends State<EditProfileScreen>
   }
 
   @override
-  void updateView(
-      String? userName, bool? isOwner, String? userAvatarUrl, String? email, String? rentalId) {
+  void updateView(String? userName, bool? isOwner, String? userAvatarUrl,
+      String? email, String? rentalId) {
     setState(() {
       _userName = userName ?? _userName;
       _userAvatarUrl = userAvatarUrl ?? _userAvatarUrl;
       _email = email ?? _email;
+      _isOwner = isOwner ?? false;
+    });
+  }
+
+  @override
+  void onFetchBankList(List bankList) {
+    setState(() {
+      _bankList = [
+        {
+          'id': 0,
+          'bin': '',
+          'shortName': 'I don\'t want to provide banking \ninformation',
+          'logo': '',
+        },
+        ...bankList.map((bank) {
+          return {
+            'id': bank['id'],
+            'bin': bank['bin'],
+            'shortName': bank['shortName'],
+            'logo': bank['logo'],
+          };
+        }).toList(),
+      ];
     });
   }
 }

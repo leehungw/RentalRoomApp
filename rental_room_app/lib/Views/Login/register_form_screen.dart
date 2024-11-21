@@ -37,6 +37,11 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
   bool _isOwner = false;
   final _desiredPriceController = TextEditingController();
   final _desiredLocationController = TextEditingController();
+  final TextEditingController _accountNumberController =
+      TextEditingController();
+  final TextEditingController _accountNameController = TextEditingController();
+  List<Map<String, dynamic>> _bankList = [];
+  String? _selectedBank;
   //
 
   @override
@@ -45,6 +50,7 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
     _registerFormPresenter = RegisterFormPresenter(this);
     _passwordVisible = true;
     _confirmPasswordVisible = true;
+    _registerFormPresenter?.fetchBankList();
   }
 
   @override
@@ -443,79 +449,200 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
                             ],
                           ),
                           const Gap(5),
-                          Visibility(
-                            visible: !_isOwner,
-                            child: Padding(
+                          if (_isOwner) ...[
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 30),
+                              child: DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: "Select Bank",
+                                    filled: true,
+                                    fillColor: ColorPalette.bgTextFieldColor,
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                          width: 10,
+                                          color: ColorPalette.bgTextFieldColor),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(
+                                          width: 5,
+                                          color: ColorPalette.bgTextFieldColor),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                  ),
+                                  value: _selectedBank,
+                                  items: _bankList
+                                      .map<DropdownMenuItem<String>>((bank) {
+                                    return DropdownMenuItem<String>(
+                                      value: bank['bin'],
+                                      child: Row(
+                                        children: [
+                                          (bank['logo'] as String).isNotEmpty
+                                              ? Image.network(
+                                                  bank['logo'],
+                                                  width: 30,
+                                                  height: 30,
+                                                )
+                                              : const SizedBox(
+                                                  height: 30, width: 30),
+                                          const SizedBox(width: 10),
+                                          Text(bank['shortName']),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedBank = value;
+                                    });
+                                  },
+                                  validator: _registerFormPresenter
+                                      ?.validateSelectedBank),
+                            ),
+                            const SizedBox(height: 15),
+                            Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 30),
                               child: TextFormField(
-                                onTapOutside: (event) {
-                                  FocusScope.of(context).unfocus();
-                                },
-                                controller: _desiredPriceController,
-                                validator: _registerFormPresenter
-                                    ?.validateDesiredPrice,
+                                controller: _accountNumberController,
                                 keyboardType: TextInputType.number,
                                 style: TextStyles.h5,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: ColorPalette.bgTextFieldColor,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          width: 10,
-                                          color: ColorPalette.bgTextFieldColor),
-                                      borderRadius: BorderRadius.circular(16)),
+                                    borderSide: const BorderSide(
+                                        width: 10,
+                                        color: ColorPalette.bgTextFieldColor),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                   focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          width: 5,
-                                          color: ColorPalette.bgTextFieldColor),
-                                      borderRadius: BorderRadius.circular(16)),
-                                  labelText: "Desired Room Price (VND)",
+                                    borderSide: const BorderSide(
+                                        width: 5,
+                                        color: ColorPalette.bgTextFieldColor),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  labelText: "Account Number",
                                   labelStyle: TextStyles.h5
                                       .copyWith(color: ColorPalette.rankText),
                                   helperText: " ",
                                 ),
-                                obscureText: false,
                               ),
                             ),
-                          ),
-                          const Gap(5),
-                          Visibility(
-                            visible: !_isOwner,
-                            child: Padding(
+                            const SizedBox(height: 15),
+                            Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 30),
                               child: TextFormField(
-                                onTapOutside: (event) {
-                                  FocusScope.of(context).unfocus();
-                                },
-                                controller: _desiredLocationController,
-                                validator: _registerFormPresenter!
-                                    .validateDesiredLocation,
-                                keyboardType: TextInputType.streetAddress,
+                                controller: _accountNameController,
+                                keyboardType: TextInputType.text,
                                 style: TextStyles.h5,
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: ColorPalette.bgTextFieldColor,
                                   enabledBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          width: 10,
-                                          color: ColorPalette.bgTextFieldColor),
-                                      borderRadius: BorderRadius.circular(16)),
+                                    borderSide: const BorderSide(
+                                        width: 10,
+                                        color: ColorPalette.bgTextFieldColor),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                   focusedBorder: OutlineInputBorder(
-                                      borderSide: const BorderSide(
-                                          width: 5,
-                                          color: ColorPalette.bgTextFieldColor),
-                                      borderRadius: BorderRadius.circular(16)),
-                                  labelText: "Desired Location",
+                                    borderSide: const BorderSide(
+                                        width: 5,
+                                        color: ColorPalette.bgTextFieldColor),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  labelText: "Account Name",
                                   labelStyle: TextStyles.h5
                                       .copyWith(color: ColorPalette.rankText),
                                   helperText: " ",
                                 ),
-                                obscureText: false,
                               ),
                             ),
-                          ),
+                          ] else ...[
+                            Visibility(
+                              visible: !_isOwner,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 30),
+                                child: TextFormField(
+                                  onTapOutside: (event) {
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  controller: _desiredPriceController,
+                                  validator: _registerFormPresenter
+                                      ?.validateDesiredPrice,
+                                  keyboardType: TextInputType.number,
+                                  style: TextStyles.h5,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: ColorPalette.bgTextFieldColor,
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            width: 10,
+                                            color:
+                                                ColorPalette.bgTextFieldColor),
+                                        borderRadius:
+                                            BorderRadius.circular(16)),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            width: 5,
+                                            color:
+                                                ColorPalette.bgTextFieldColor),
+                                        borderRadius:
+                                            BorderRadius.circular(16)),
+                                    labelText: "Desired Room Price (VND)",
+                                    labelStyle: TextStyles.h5
+                                        .copyWith(color: ColorPalette.rankText),
+                                    helperText: " ",
+                                  ),
+                                  obscureText: false,
+                                ),
+                              ),
+                            ),
+                            const Gap(5),
+                            Visibility(
+                              visible: !_isOwner,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 30),
+                                child: TextFormField(
+                                  onTapOutside: (event) {
+                                    FocusScope.of(context).unfocus();
+                                  },
+                                  controller: _desiredLocationController,
+                                  validator: _registerFormPresenter!
+                                      .validateDesiredLocation,
+                                  keyboardType: TextInputType.streetAddress,
+                                  style: TextStyles.h5,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: ColorPalette.bgTextFieldColor,
+                                    enabledBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            width: 10,
+                                            color:
+                                                ColorPalette.bgTextFieldColor),
+                                        borderRadius:
+                                            BorderRadius.circular(16)),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderSide: const BorderSide(
+                                            width: 5,
+                                            color:
+                                                ColorPalette.bgTextFieldColor),
+                                        borderRadius:
+                                            BorderRadius.circular(16)),
+                                    labelText: "Desired Location",
+                                    labelStyle: TextStyles.h5
+                                        .copyWith(color: ColorPalette.rankText),
+                                    helperText: " ",
+                                  ),
+                                  obscureText: false,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -542,7 +669,10 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
                                   _imageFile,
                                   _isOwner
                                       ? 'None'
-                                      : _desiredPriceController.text);
+                                      : _desiredPriceController.text,
+                                  _selectedBank ?? '',
+                                  _accountNumberController.text,
+                                  _accountNameController.text);
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -633,5 +763,27 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
   @override
   void onPopContext() {
     Navigator.of(context, rootNavigator: true).pop();
+  }
+
+  @override
+  void onFetchBankList(List bankList) {
+    setState(() {
+      _bankList = [
+        {
+          'id': 0,
+          'bin': '',
+          'shortName': 'I don\'t want to provide banking \ninformation',
+          'logo': '',
+        },
+        ...bankList.map((bank) {
+          return {
+            'id': bank['id'],
+            'bin': bank['bin'],
+            'shortName': bank['shortName'],
+            'logo': bank['logo'],
+          };
+        }).toList(),
+      ];
+    });
   }
 }

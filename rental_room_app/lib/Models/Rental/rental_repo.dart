@@ -21,7 +21,7 @@ class RentalRepositoryIml implements RentalRepository {
     if (doc.exists) {
       return Rental.fromFirestore(doc);
     } else {
-      throw Exception('Rental data not found');
+      throw Exception("Rental not Found");
     }
   }
 

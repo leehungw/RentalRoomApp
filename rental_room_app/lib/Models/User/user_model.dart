@@ -12,6 +12,9 @@ class Users {
   String desiredLocation_Long;
   String desiredLocaiton_Lat;
   String latestTappedRoomId;
+  String bankId;
+  String accountNo;
+  String accountName;
 
   Users(
       {required this.userID,
@@ -24,7 +27,10 @@ class Users {
       this.desiredPrice = "0",
       this.desiredLocation_Long = "None",
       this.desiredLocaiton_Lat = "None",
-      this.latestTappedRoomId = "None"});
+      this.latestTappedRoomId = "None",
+      this.bankId = "",
+      this.accountNo = "",
+      this.accountName = ""});
 
   // Phương thức để chuyển đổi dữ liệu thành một Map để lưu trữ trên Firestore
   Map<String, dynamic> toJson() {
@@ -39,7 +45,10 @@ class Users {
       'desiredPrice': desiredPrice,
       'desiredLocation_Long': desiredLocation_Long,
       'desiredLocaiton_Lat': desiredLocaiton_Lat,
-      'latestTappedRoomId': latestTappedRoomId
+      'latestTappedRoomId': latestTappedRoomId,
+      'bankId': bankId,
+      'accountNo': accountNo,
+      'accountName': accountName
     };
   }
 
@@ -56,7 +65,10 @@ class Users {
         desiredPrice: data['desiredPrice'],
         desiredLocation_Long: data['desiredLocation_Long'],
         desiredLocaiton_Lat: data['desiredLocation_Lat'],
-        latestTappedRoomId: data['latestTappedRoomId']);
+        latestTappedRoomId: data['latestTappedRoomId'],
+        bankId: data['bankId'],
+        accountNo: data['accountNo'],
+        accountName: data['accountName']);
   }
 
   String get getUserName => userName;

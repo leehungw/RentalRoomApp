@@ -17,7 +17,7 @@ abstract class UserRepository {
 
 class UserRepositoryIml implements UserRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
   @override
   Future<Map<String, dynamic>> getUserData(String userId) async {
@@ -34,20 +34,20 @@ class UserRepositoryIml implements UserRepository {
   @override
   Future<void> signOut() async {
     try {
-      await _auth.signOut();
+      await FirebaseAuth.instance.signOut();
     } catch (e) {
       throw Exception("Đăng xuất thất bại: $e");
     }
   }
 
   @override
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges => FirebaseAuth.instance.authStateChanges();
 
   //Dăng nhập
   @override
   Future<UserCredential> signInWithEmailAndPassword(
       String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(
+    return await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim(), password: password.trim());
   }
 
@@ -69,7 +69,7 @@ class UserRepositoryIml implements UserRepository {
   void updateLatestTappedRoom(String roomId) {
     FirebaseFirestore.instance
         .collection('users')
-        .doc(FirebaseAuth.instance.currentUser?.uid)
+        .doc(_currentUserId)
         .update({"latestTappedRoomId": roomId});
   }
 
@@ -98,7 +98,7 @@ class UserRepositoryIml implements UserRepository {
   Future<void> deleteRental(String rentalId) async {
     QuerySnapshot rentalroomSnapshot = await _firestore
         .collection('users')
-        .doc(rentalId)
+        .doc(_currentUserId)
         .collection('rentalroom')
         .get();
     for (var doc in rentalroomSnapshot.docs) {

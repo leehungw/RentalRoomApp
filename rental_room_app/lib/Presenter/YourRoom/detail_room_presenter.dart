@@ -63,10 +63,14 @@ class DetailRoomPresenter {
   Future<void> beginProgram(Room room) async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     if (!room.isAvailable) {
-      await _loadReceiptStatus(room.roomId, userId);
-      _rentalRepository.getRentalData(userId, room.roomId).then((value) {
-        _view?.onGetRental(value);
-      });
+      await loadReceiptStatus(room.roomId, userId);
+      try {
+        _rentalRepository.getRentalData(userId, room.roomId).then((value) {
+          _view?.onGetRental(value);
+        });
+      } catch (e) {
+        print("================== Error begin program");
+      }
 
       _view?.onGetTenant(
           await _userRepository.getUserByRentalId(userId, room.roomId));
@@ -75,7 +79,7 @@ class DetailRoomPresenter {
     }
   }
 
-  Future<void> _loadReceiptStatus(String roomId, String rentalId) async {
+  Future<void> loadReceiptStatus(String roomId, String rentalId) async {
     try {
       DateTime now = DateTime.now();
 

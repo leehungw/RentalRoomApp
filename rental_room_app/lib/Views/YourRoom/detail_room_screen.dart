@@ -1463,8 +1463,9 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
     setState(() {
       _isOwner = isOwner ?? true;
       _rentalID = rentalId ?? "";
-      if (_rentalID.isNotEmpty) {
+      if (_rentalID.isNotEmpty || _isOwner) {
         _detailRoomPresenter?.beginProgram(widget.room);
+        _detailRoomPresenter?.loadReceiptStatus(widget.room.roomId, _rentalID);
       }
     });
   }

@@ -17,6 +17,7 @@ class SharedPreferencesPresenter {
     String email = prefs.getString('email') ?? 'nguyenvana@gmail.com';
     String rentalID = await _rentalRepository.getRentalId();
 
+
     _view?.updateView(userName, isOwner, userAvatarUrl, email, rentalID);
   }
 }

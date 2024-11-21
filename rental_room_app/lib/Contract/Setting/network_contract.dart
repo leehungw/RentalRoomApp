@@ -11,8 +11,10 @@ class NetworkController extends GetxController {
     _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
-  void _updateConnectionStatus(ConnectivityResult connectivityResult) {
-    if (connectivityResult == ConnectivityResult.none) {
+  void _updateConnectionStatus(List<ConnectivityResult> connectivityResults) {
+    final isDisconnected = connectivityResults.every((result) => result == ConnectivityResult.none);
+
+    if (isDisconnected) {
       router.go('/nointernet');
     } else {
       router.go('/');

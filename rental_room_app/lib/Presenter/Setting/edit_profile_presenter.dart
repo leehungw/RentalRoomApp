@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rental_room_app/Contract/Setting/edit_profile_contract.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class EditProfilePresenter {
   // ignore: unused_field
@@ -48,8 +50,18 @@ class EditProfilePresenter {
     return null;
   }
 
+    String? validateSelectedBank(String? value) {
+    if (value == null) {
+      return "Please select a bank";
+    }
+    return null;
+  }
+
   Future<void> onUpdateProfile(String fullName, String gender,
-      String phoneNumber, DateTime birthday) async {
+      String phoneNumber, DateTime birthday,
+      String bankBinCode,
+      String accountNo,
+      String accountName) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -61,6 +73,9 @@ class EditProfilePresenter {
           "gender": gender,
           "phone": phoneNumber,
           "birthDay": birthday,
+          "bankId": bankBinCode,
+          "accountNo": accountNo,
+          "accountName": accountName
         });
       }
       final prefs = await SharedPreferences.getInstance();
@@ -70,6 +85,20 @@ class EditProfilePresenter {
     } catch (e) {
       print(e);
       _view?.onUpdateProfileFailed();
+    }
+  }
+
+    Future<void> fetchBankList() async {
+    try {
+      final response =
+          await http.get(Uri.parse('https://api.vietqr.io/v2/banks'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final bankData = data['data'] as List;
+        _view?.onFetchBankList(bankData);
+      }
+    } catch (e) {
+      print("Error fetching bank list: $e");
     }
   }
 }

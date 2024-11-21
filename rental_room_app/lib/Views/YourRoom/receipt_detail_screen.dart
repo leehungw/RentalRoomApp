@@ -606,22 +606,27 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen>
               ),
             ),
             const Gap(20),
-            if (_status == 'Unpaid')
-              Container(
-                alignment: Alignment.center,
-                child: ModelButton(
-                  onTap: () async {
+            Container(
+              alignment: Alignment.center,
+              child: ModelButton(
+                onTap: () async {
+                  if (_status == 'Unpaid') {
                     _receiptDetailPresenter
                         .updateStatus(widget.receipt.receiptID);
                     setState(() {
                       _status = 'Paid';
                     });
-                  },
-                  name: 'Paid The Bill',
-                  color: ColorPalette.primaryColor.withOpacity(0.75),
-                  width: 180,
-                ),
+                  } 
+                  _receiptDetailPresenter.fetchQRImageURL(
+                        ownerUID: widget.receipt.ownerID,
+                        amount: total.toString(),
+                        roomName: widget.room.roomName);
+                },
+                name: _status == 'Unpaid' ? 'Paid The Bill' : 'Check QR',
+                color: ColorPalette.primaryColor.withOpacity(0.75),
+                width: 180,
               ),
+            ),
             const Gap(30),
           ],
         ),
@@ -650,6 +655,47 @@ class _ReceiptDetailScreenState extends State<ReceiptDetailScreen>
       MaterialPageRoute(
         builder: (_) => const ListNotificationScreen(),
       ),
+    );
+  }
+
+  @override
+  void onShowNoQR() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Bank Information Not Available'),
+          content: const Text(
+            'The owner has not registered bank information yet. '
+            'Please contact the owner directly to pay the bill.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  void onShowQR(String qrImageURL) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(qrImageURL),
+            ],
+          ),
+        );
+      },
     );
   }
 }

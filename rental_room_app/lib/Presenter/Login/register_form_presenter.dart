@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:rental_room_app/Contract/Login/register_form_contract.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterFormPresenter {
   final RegisterFormContract? _view;
@@ -116,6 +118,13 @@ class RegisterFormPresenter {
     }
   }
 
+  String? validateSelectedBank(String? value) {
+    if (value == null) {
+      return "Please select a bank";
+    }
+    return null;
+  }
+
   //*
   //Screen Logics
   //*
@@ -129,7 +138,10 @@ class RegisterFormPresenter {
       DateTime birthday,
       bool isOwner,
       String? avatar,
-      String desiredPrice) async {
+      String desiredPrice,
+      String bankBinCode,
+      String accountNo,
+      String accountName) async {
     try {
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -173,6 +185,9 @@ class RegisterFormPresenter {
         'desiredLocation_Lat':
             isOwner ? 'None' : desiredLocation?.latitude.toString(),
         'latestTappedRoomId': 'None',
+        'bankId': bankBinCode,
+        'accountNo': bankBinCode.isEmpty ? '' : accountNo,
+        'accountName': bankBinCode.isEmpty ? '' : accountName
       });
       return userCredential;
     } catch (e) {
@@ -201,7 +216,10 @@ class RegisterFormPresenter {
       DateTime birthday,
       bool isOwner,
       String? avatar,
-      String desiredPrice) async {
+      String desiredPrice,
+      String bankBinCode,
+      String accountNo,
+      String accountName) async {
     email = email?.trim();
     password = password.trim();
     displayName = displayName.trim();
@@ -216,12 +234,29 @@ class RegisterFormPresenter {
         birthday,
         isOwner,
         avatar,
-        desiredPrice);
+        desiredPrice,
+        bankBinCode,
+        accountNo,
+        accountName);
     _view?.onPopContext();
     if (result == null) {
       _view?.onRegisterFailed();
     } else {
       _view?.onRegisterSucceeded();
+    }
+  }
+
+  Future<void> fetchBankList() async {
+    try {
+      final response =
+          await http.get(Uri.parse('https://api.vietqr.io/v2/banks'));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final bankData = data['data'] as List;
+        _view?.onFetchBankList(bankData);
+      }
+    } catch (e) {
+      print("Error fetching bank list: $e");
     }
   }
 }

@@ -20,7 +20,7 @@ class NewReceipt extends StatefulWidget {
   Room room;
   String tenantID;
   NewReceipt({super.key, required this.room, required this.tenantID});
-
+  
   @override
   State<NewReceipt> createState() => _NewReceiptState();
 }
@@ -62,6 +62,8 @@ class _NewReceiptState extends State<NewReceipt> implements NewReceiptContract {
         user = Users.fromFirestore(docUser);
       });
     }
+
+    try {
     _rentalRepository
         .getRentalData(widget.tenantID, widget.room.roomId)
         .then((value) {
@@ -69,6 +71,9 @@ class _NewReceiptState extends State<NewReceipt> implements NewReceiptContract {
         rental = value;
       });
     });
+    } catch (e){
+      print("===========Error load tennant new receipt");
+    }
   }
 
   @override

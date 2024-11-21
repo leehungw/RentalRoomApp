@@ -5,4 +5,6 @@ abstract class ReceiptDetailContract {
   void onGoToListNoti();
   void onGetRental(Rental? rental);
   void onGetTenant(Users? user);
+  void onShowQR(String qrImageURL);
+  void onShowNoQR();
 }

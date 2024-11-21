@@ -4,4 +4,5 @@ abstract class RegisterFormContract {
   void onChangeProfilePicture(String pickedImage);
   void onWaitingProgressBar();
   void onPopContext();
+  void onFetchBankList(List<dynamic> bankList);
 }
