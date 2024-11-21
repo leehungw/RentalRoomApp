@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rental_room_app/Models/PowerCut/powercut_model.dart';
 import 'package:rental_room_app/Models/PowerCut/powercut_repo.dart';
 import 'package:rental_room_app/Views/Notification/Subviews/power_cut_info_text.dart';
 
 class PowerCutScheduleView extends StatefulWidget {
-  const PowerCutScheduleView({Key? key}) : super(key: key);
+  const PowerCutScheduleView({super.key});
 
   @override
   State<PowerCutScheduleView> createState() => _PowerCutScheduleViewState();
@@ -44,7 +43,7 @@ class _PowerCutScheduleViewState extends State<PowerCutScheduleView> {
 class PowerCutItem extends StatefulWidget {
   final PowerCut city;
 
-  const PowerCutItem({Key? key, required this.city}) : super(key: key);
+  const PowerCutItem({super.key, required this.city});
 
   @override
   _PowerCutItemState createState() => _PowerCutItemState();
@@ -97,8 +96,7 @@ class _PowerCutItemState extends State<PowerCutItem> {
 class PowerCutScheduleItem extends StatefulWidget {
   final PowerCutSchedule powerCut;
 
-  const PowerCutScheduleItem({Key? key, required this.powerCut})
-      : super(key: key);
+  const PowerCutScheduleItem({super.key, required this.powerCut});
 
   @override
   _PowerCutScheduleItemState createState() => _PowerCutScheduleItemState();

@@ -9,9 +9,9 @@ class NotificationView extends StatelessWidget {
   final ReceiptRepository _receiptRepository = ReceiptRepositoryIml();
 
   NotificationView({
-    Key? key,
+    super.key,
     required this.isOwner,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

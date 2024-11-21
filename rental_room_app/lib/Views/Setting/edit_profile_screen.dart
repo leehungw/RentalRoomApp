@@ -510,7 +510,7 @@ class _EditProfileScreenState extends State<EditProfileScreen>
             'shortName': bank['shortName'],
             'logo': bank['logo'],
           };
-        }).toList(),
+        }),
       ];
     });
   }

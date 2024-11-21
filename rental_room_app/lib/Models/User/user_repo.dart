@@ -74,16 +74,16 @@ class UserRepositoryIml implements UserRepository {
   }
 
   @override
-  Future<Users?> getUserByRentalId(String rentalId, String roomId) async {
+  Future<Users?> getUserByRentalId(String tenantId, String roomId) async {
     DocumentSnapshot doc = await _firestore
         .collection('users')
-        .doc(rentalId)
+        .doc(tenantId)
         .collection('rentalroom')
         .doc(roomId)
         .get();
     if (doc.exists) {
       DocumentSnapshot docUser =
-          await _firestore.collection('users').doc(rentalId).get();
+          await _firestore.collection('users').doc(tenantId).get();
       if (docUser.exists) {
         return Users.fromFirestore(docUser);
       } else {

@@ -5,7 +5,7 @@ abstract class ReceiptRepository {
   Future<void> uploadReceipt(Receipt receipt);
   Stream<List<Receipt>> getReceipts();
   Future<Receipt> getReceiptById(String receiptID);
-  Future<QuerySnapshot> getReceiptByRoomId(String roomId, String rentalId);
+  Future<QuerySnapshot> getReceiptByRoomId(String roomId);
   Future<void> updateIsRead(String receiptId, bool isRead);
   Future<void> updateStatus(String receiptId, bool status);
 }
@@ -45,11 +45,9 @@ class ReceiptRepositoryIml implements ReceiptRepository {
 
   @override
   Future<QuerySnapshot> getReceiptByRoomId(
-      String roomId, String rentalId) async {
+      String roomId) async {
     QuerySnapshot doc = await FirebaseFirestore.instance
         .collection('Receipts')
-        .where('roomID', isEqualTo: roomId)
-        .where('tenantID', isEqualTo: rentalId)
         .orderBy('createdDay', descending: true)
         .limit(1)
         .get();

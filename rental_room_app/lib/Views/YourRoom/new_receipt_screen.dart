@@ -65,7 +65,7 @@ class _NewReceiptState extends State<NewReceipt> implements NewReceiptContract {
 
     try {
     _rentalRepository
-        .getRentalData(widget.tenantID, widget.room.roomId)
+        .getRentalData(widget.room.roomId)
         .then((value) {
       setState(() {
         rental = value;

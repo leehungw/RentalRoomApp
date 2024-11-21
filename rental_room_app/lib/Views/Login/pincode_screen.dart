@@ -219,8 +219,7 @@ class _PincodeScreenState extends State<PincodeScreen>
 class ResendCountdown extends StatefulWidget {
   final VoidCallback onResendClick;
 
-  const ResendCountdown({Key? key, required this.onResendClick})
-      : super(key: key);
+  const ResendCountdown({super.key, required this.onResendClick});
 
   @override
   State<ResendCountdown> createState() => _ResendCountdownState();

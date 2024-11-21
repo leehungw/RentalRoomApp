@@ -6,8 +6,7 @@ import 'package:rental_room_app/themes/text_styles.dart';
 class ForgotPasswordDialog extends StatefulWidget {
   final LoginPresenter? presenter;
 
-  const ForgotPasswordDialog({Key? key, required this.presenter})
-      : super(key: key);
+  const ForgotPasswordDialog({super.key, required this.presenter});
 
   @override
   _ForgotPasswordDialogState createState() => _ForgotPasswordDialogState();

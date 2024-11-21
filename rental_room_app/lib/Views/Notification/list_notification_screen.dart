@@ -1,12 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_icon_class/font_awesome_icon_class.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rental_room_app/Contract/Notification/list_notification_contract.dart';
 import 'package:rental_room_app/Presenter/Notification/list_notification_presenter.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
-import 'package:rental_room_app/Models/Receipt/receipt_model.dart';
-import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
 import 'package:rental_room_app/Views/Notification/Subviews/list_notification_view.dart';
@@ -14,7 +11,6 @@ import 'package:rental_room_app/Views/Notification/Subviews/power_cut_view.dart'
 import 'package:rental_room_app/Views/YourRoom/detail_room_screen.dart';
 import 'package:rental_room_app/themes/color_palete.dart';
 import 'package:rental_room_app/themes/text_styles.dart';
-import 'package:rental_room_app/widgets/receipt_item.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
 class ListNotificationScreen extends StatefulWidget {

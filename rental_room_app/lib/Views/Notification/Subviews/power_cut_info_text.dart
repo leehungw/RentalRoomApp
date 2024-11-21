@@ -7,7 +7,7 @@ class PowerCutInfoText extends StatelessWidget {
   final TextStyle valueStyle;
 
   const PowerCutInfoText({
-    Key? key,
+    super.key,
     required this.label,
     required this.value,
     this.labelStyle = const TextStyle(
@@ -19,7 +19,7 @@ class PowerCutInfoText extends StatelessWidget {
       color: Colors.black,
       fontSize: 14,
     ),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

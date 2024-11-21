@@ -12,6 +12,7 @@ import 'package:rental_room_app/Models/User/user_model.dart';
 import 'package:rental_room_app/Presenter/YourRoom/detail_room_presenter.dart';
 import 'package:rental_room_app/Services/shared_preferences_contract.dart';
 import 'package:rental_room_app/Services/shared_preferences_presenter.dart';
+import 'package:rental_room_app/Views/Chat/chat_screen.dart';
 import 'package:rental_room_app/Views/Home/home_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_form_screen.dart';
 import 'package:rental_room_app/Views/YourRoom/edit_room_screen.dart';
@@ -1422,7 +1423,8 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                               }
                             },
                             name: 'POST',
-                            color: ColorPalette.primaryColor.withOpacity(0.75),
+                            color: ColorPalette.primaryColor
+                                .withValues(alpha: .75),
                             width: 150,
                           ),
                         ),
@@ -1435,6 +1437,27 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
           ),
         ],
       )),
+      floatingActionButton:
+          (((!widget.room.isAvailable && _isOwner) || !_isOwner) && _rentalID.isNotEmpty)
+              ? FloatingActionButton(
+                  onPressed: () {
+                    String receiverId;
+                    if (_isOwner) {
+                      receiverId = _rentalID;
+                    } else {
+                      receiverId = widget.room.ownerId;
+                    }
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChatScreen(receiverId: receiverId),
+                      ),
+                    );
+                  },
+                  tooltip: 'Start a new chat',
+                  child: Icon(Icons.chat),
+                ) : null,
     );
   }
 
@@ -1462,10 +1485,9 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
       String? email, String? rentalId) {
     setState(() {
       _isOwner = isOwner ?? true;
-      _rentalID = rentalId ?? "";
-      if (_rentalID.isNotEmpty || _isOwner) {
+      if (!widget.room.isAvailable || _isOwner) {
         _detailRoomPresenter?.beginProgram(widget.room);
-        _detailRoomPresenter?.loadReceiptStatus(widget.room.roomId, _rentalID);
+        _detailRoomPresenter?.loadReceiptStatus(widget.room.roomId);
       }
     });
   }
@@ -1474,6 +1496,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
   void onGetRental(Rental? rental) {
     setState(() {
       _rental = rental;
+      _rentalID = _rental?.rentalID ?? "";
     });
   }
 

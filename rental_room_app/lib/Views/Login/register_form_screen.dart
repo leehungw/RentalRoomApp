@@ -782,7 +782,7 @@ class _RegisterFormScreenState extends State<RegisterFormScreen>
             'shortName': bank['shortName'],
             'logo': bank['logo'],
           };
-        }).toList(),
+        }),
       ];
     });
   }

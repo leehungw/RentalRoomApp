@@ -30,8 +30,7 @@ class CustomFormField extends StatefulWidget {
   final DateTimeFieldPickerMode? dateTimeFieldPickerMode;
   const CustomFormField._(
       // ignore: unused_element
-      {super.key,
-      required this.type,
+      {required this.type,
       this.stringValidator,
       this.editingController,
       this.keyboardType,

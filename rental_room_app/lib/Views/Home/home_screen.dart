@@ -36,9 +36,9 @@ class _HomeScreenState extends State<HomeScreen>
   String _userName = "nguyen van a";
   bool _isOwner = true;
   String _userAvatarUrl = '';
-  bool _isVisiable = false;
+  final bool _isVisiable = false;
   bool _isVisibleFilter = false;
-  int _soLuongPhongCoSan = 6;
+  final int _soLuongPhongCoSan = 6;
   bool _show = true;
 
   late List<Room> _roomAvailable;

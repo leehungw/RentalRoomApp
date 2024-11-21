@@ -15,7 +15,7 @@ class NumericUpDown extends StatefulWidget {
   final ValueChanged<int?>? onChanged;
 
   const NumericUpDown({
-    Key? key,
+    super.key,
     this.controller,
     this.focusNode,
     this.min = 0,
@@ -26,7 +26,7 @@ class NumericUpDown extends StatefulWidget {
     this.contentPadding = const EdgeInsets.symmetric(horizontal: 8),
     this.borderWidth = 2,
     this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() => _NumericUpDownState();

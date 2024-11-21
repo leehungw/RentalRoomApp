@@ -5,6 +5,7 @@ import 'package:rental_room_app/Contract/YourRoom/detail_room_contract.dart';
 import 'package:rental_room_app/Models/Comment/comment_model.dart';
 import 'package:rental_room_app/Models/Comment/comment_repo.dart';
 import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
+import 'package:rental_room_app/Models/Rental/rental_model.dart';
 import 'package:rental_room_app/Models/Rental/rental_repo.dart';
 import 'package:rental_room_app/Models/Room/room_model.dart';
 import 'package:rental_room_app/Models/Room/room_repo.dart';
@@ -63,30 +64,31 @@ class DetailRoomPresenter {
   Future<void> beginProgram(Room room) async {
     String userId = FirebaseAuth.instance.currentUser?.uid ?? "";
     if (!room.isAvailable) {
-      await loadReceiptStatus(room.roomId, userId);
+      await loadReceiptStatus(room.roomId);
       try {
-        _rentalRepository.getRentalData(userId, room.roomId).then((value) {
+        Rental? rental;
+        _rentalRepository.getRentalData(room.roomId).then((value) {
           _view?.onGetRental(value);
+          rental = value;
         });
+        _view?.onGetTenant(
+            await _userRepository.getUserById(rental?.rentalID ?? userId));
       } catch (e) {
         print("================== Error begin program");
       }
-
-      _view?.onGetTenant(
-          await _userRepository.getUserByRentalId(userId, room.roomId));
     } else {
       _view?.onGetRental(null);
     }
   }
 
-  Future<void> loadReceiptStatus(String roomId, String rentalId) async {
+  Future<void> loadReceiptStatus(String roomId) async {
     try {
       DateTime now = DateTime.now();
 
       QuerySnapshot querySnapshot;
       try {
         querySnapshot =
-            await _receiptRepository.getReceiptByRoomId(roomId, rentalId);
+            await _receiptRepository.getReceiptByRoomId(roomId);
       } catch (e) {
         _view?.onSetReceiptStatus("Error fetching data");
         return;

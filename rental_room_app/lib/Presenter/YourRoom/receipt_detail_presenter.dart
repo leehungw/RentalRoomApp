@@ -4,8 +4,6 @@ import 'package:rental_room_app/Models/Receipt/receipt_repo.dart';
 import 'package:rental_room_app/Models/Rental/rental_repo.dart';
 import 'package:rental_room_app/Models/User/user_model.dart';
 import 'package:rental_room_app/Models/User/user_repo.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ReceiptDetailPresenter {
   final ReceiptDetailContract? _view;
@@ -27,7 +25,7 @@ class ReceiptDetailPresenter {
   Future<void> loadTenant(String tenantId, String roomId) async {
     _view?.onGetTenant(await _userRepository.getUserById(tenantId));
     try {
-      _rentalRepository.getRentalData(tenantId, roomId).then((value) {
+      _rentalRepository.getRentalData(roomId).then((value) {
         _view?.onGetRental(value);
       });
     } catch (e) {
@@ -54,7 +52,7 @@ class ReceiptDetailPresenter {
       }
 
       String imageURL =
-          "https://img.vietqr.io/image/${owner.bankId}-${owner.accountNo}-print.png?amount=${amount}&addInfo=${'${currentUser.userName} dong tien tro phong $roomName'}&accountName=${owner.accountName}";
+          "https://img.vietqr.io/image/${owner.bankId}-${owner.accountNo}-print.png?amount=$amount&addInfo=${'${currentUser.userName} dong tien tro phong $roomName'}&accountName=${owner.accountName}";
       _view?.onShowQR(imageURL);
     } catch (e) {
       print("Error fetching QR image URL: $e");
