@@ -5,12 +5,14 @@ class ChatMessage {
   final String receiverId;
   final String message;
   final DateTime timestamp;
+  final String messageType;
 
   ChatMessage({
     required this.senderId,
     required this.receiverId,
     required this.message,
     required this.timestamp,
+    required this.messageType,
   });
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
@@ -19,6 +21,7 @@ class ChatMessage {
       receiverId: map['receiverId'],
       message: map['message'],
       timestamp: (map['timestamp'] as Timestamp).toDate(),
+      messageType: map['messageType'] ?? 'text',
     );
   }
 
@@ -28,6 +31,8 @@ class ChatMessage {
       'receiverId': receiverId,
       'message': message,
       'timestamp': timestamp,
+      'messageType': messageType,
     };
   }
 }
+

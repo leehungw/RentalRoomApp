@@ -17,8 +17,8 @@ class ChatPresenter implements ChatPresenterContract {
   });
 
   @override
-  void sendMessage(String message) async {
-    if (message.trim().isEmpty) {
+  void sendMessage(String content, {String messageType = 'text'}) async {
+    if (content.trim().isEmpty) {
       return;
     }
 
@@ -26,12 +26,23 @@ class ChatPresenter implements ChatPresenterContract {
       ChatMessage chatMessage = ChatMessage(
         senderId: currentUserId,
         receiverId: receiverId,
-        message: message,
+        message: content,
         timestamp: DateTime.now(),
+        messageType: messageType,
       );
       await repository.sendMessage(chatMessage);
     } catch (e) {
       view.showError("Failed to send message: $e");
+    }
+  }
+
+  @override
+  void sendMediaMessage(String filePath, String mediaType) async {
+    try {
+      final uploadedUrl = await repository.uploadMedia(filePath, mediaType);
+      sendMessage(uploadedUrl, messageType: mediaType);
+    } catch (e) {
+      view.showError("Failed to send $mediaType: $e");
     }
   }
 
