@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:rental_room_app/Contract/Chat/chat_screen_contract.dart';
 import 'package:rental_room_app/Models/Chat/chat_model.dart';
 import 'package:rental_room_app/Models/Chat/chat_repo.dart';
+import 'package:rental_room_app/Models/User/user_model.dart';
+import 'package:rental_room_app/Models/User/user_repo.dart';
 
 class ChatPresenter implements ChatPresenterContract {
   final ChatScreenContract view;
@@ -36,7 +38,6 @@ class ChatPresenter implements ChatPresenterContract {
     }
   }
 
-  @override
   void sendMediaMessage(String filePath, String mediaType) async {
     try {
       final uploadedUrl = await repository.uploadMedia(filePath, mediaType);
@@ -56,6 +57,23 @@ class ChatPresenter implements ChatPresenterContract {
         view.showError("Failed to load messages: $error");
       },
     );
+  }
+
+  Future<void> fetchQRImageURL() async {
+    try {
+      Users owner = await UserRepositoryIml().getUserById(FirebaseAuth.instance.currentUser!.uid);
+
+      if (owner.bankId.isEmpty) {
+        view.onShowNoQR();
+        return;
+      }
+
+      String imageURL =
+          "https://img.vietqr.io/image/${owner.bankId}-${owner.accountNo}-print.png?accountName=${owner.accountName}";
+      view.onShowQR(imageURL);
+    } catch (e) {
+      print("Error fetching QR image URL: $e");
+    }
   }
 }
 

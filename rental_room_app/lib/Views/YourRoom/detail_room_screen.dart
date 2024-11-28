@@ -1451,7 +1451,7 @@ class _DetailRoomScreenState extends State<DetailRoomScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChatScreen(receiverId: receiverId),
+                        builder: (_) => ChatScreen(receiverId: receiverId, isOwner: _isOwner,),
                       ),
                     );
                   },

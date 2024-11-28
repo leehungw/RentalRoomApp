@@ -10,8 +10,10 @@ import 'package:rental_room_app/Views/Chat/Subviews/chat_video_player.dart';
 
 class ChatScreen extends StatefulWidget {
   final String receiverId;
+  final bool isOwner;
 
-  const ChatScreen({super.key, required this.receiverId});
+  const ChatScreen(
+      {super.key, required this.receiverId, required this.isOwner});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -22,6 +24,7 @@ class _ChatScreenState extends State<ChatScreen> implements ChatScreenContract {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
   final ScrollController _scrollController = ScrollController();
+  bool _isMoreDrawerVisible = false;
   String currentUid = FirebaseAuth.instance.currentUser!.uid;
 
   void _scrollToBottom() {
@@ -157,7 +160,8 @@ class _ChatScreenState extends State<ChatScreen> implements ChatScreenContract {
                         Image.network(message.message, fit: BoxFit.cover);
                     break;
                   case 'video':
-                    messageContent = ChatVideoPlayer(videoUrl: message.message, isMe: isMe);
+                    messageContent =
+                        ChatVideoPlayer(videoUrl: message.message, isMe: isMe);
                     break;
                   case 'emoji':
                     messageContent = Text(
@@ -192,33 +196,54 @@ class _ChatScreenState extends State<ChatScreen> implements ChatScreenContract {
               },
             ),
           ),
+          if (_isMoreDrawerVisible)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.image, color: Colors.grey),
+                    onPressed: () async {
+                      final pickedImage = await _pickImage();
+                      if (pickedImage != null) {
+                        presenter.sendMediaMessage(pickedImage, 'image');
+                      }
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.video_call, color: Colors.grey),
+                    onPressed: () async {
+                      final pickedVideo = await _pickVideo();
+                      if (pickedVideo != null) {
+                        presenter.sendMediaMessage(pickedVideo, 'video');
+                      }
+                    },
+                  ),
+                  if (widget.isOwner)
+                    IconButton(
+                      icon: const Icon(Icons.qr_code, color: Colors.grey),
+                      onPressed: presenter.fetchQRImageURL
+                    ),
+                ],
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.image, color: Colors.grey),
-                  onPressed: () async {
-                    final pickedImage = await _pickImage();
-                    if (pickedImage != null) {
-                      presenter.sendMediaMessage(pickedImage, 'image');
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.video_call, color: Colors.grey),
-                  onPressed: () async {
-                    final pickedVideo = await _pickVideo();
-                    if (pickedVideo != null) {
-                      presenter.sendMediaMessage(pickedVideo, 'video');
-                    }
+                  icon: const Icon(Icons.more_vert, color: Colors.grey),
+                  onPressed: () {
+                    setState(() {
+                      _isMoreDrawerVisible = !_isMoreDrawerVisible;
+                    });
                   },
                 ),
                 IconButton(
                   icon: const Icon(Icons.emoji_emotions, color: Colors.grey),
                   onPressed: () async {
-                    final emoji =
-                        await _pickEmoji(); // Implement your emoji picker
+                    final emoji = await _pickEmoji();
                     if (emoji != null) {
                       presenter.sendMessage(emoji, messageType: 'emoji');
                     }
@@ -285,5 +310,64 @@ class _ChatScreenState extends State<ChatScreen> implements ChatScreenContract {
   @override
   void showError(String error) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(error)));
+  }
+
+  @override
+  void onShowQR(String url) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.network(url),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                // Send the QR image URL to the chat
+                presenter.sendMessage(url, messageType: 'image');
+                Navigator.pop(context); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF38A3A5), // Primary color
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Send to Chat',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+  
+  @override
+  void onShowNoQR() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Bank Information Not Available'),
+          content: const Text(
+            'You have not provide any banking information yet!'
+            'Go to profile setting to update your information.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
