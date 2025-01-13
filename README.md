@@ -170,7 +170,7 @@
 + flutter pub get
 
 5. Chạy server để có thể kích hoạt chức năng gợi ý bằng cách:
-   
+   Version 1.0
 	5.1. Truy cập trang web [RecommnederAPI](https://replit.com/join/iorljuvlwd-hungle43).
    
    	5.2. Bấm nút Run ở thanh trạng thái để khởi chạy API: ![RUN](https://github.com/TuongPhamCT/Rental-Room-App/assets/110316749/9c529265-35bd-478c-857f-6c55db393a3b)
@@ -178,6 +178,14 @@
    	5.3 Sao chép đường dẫn server ở console để sử dụng: ![Link Server](https://github.com/TuongPhamCT/Rental-Room-App/assets/110316749/4da24595-1186-42a4-b798-76e1cb6c05f2)
 
 	5.4 Thay đổi đường dẫn server ở file room_repo.dart bằng được dẫn vừa được tạo ![Room_repo.dart](https://github.com/TuongPhamCT/Rental-Room-App/assets/110316749/585aaa09-db67-473d-949e-ec7653f4e01b)
+
+    HOẶC
+   Version 2.0
+   	5.1. Clone source code BE từ github: https://github.com/leehungw/RentalRoomAPI
+	5.2. Cài đặt python và các library liên quan
+   	5.3. Chạy file main.py để khởi động server
+   	5.4. Tìm đường link server ngrok ở DebugConsole
+   	5.5. Thay đổi đường dẫn server ở file room_repo.dart bằng được dẫn vừa được tạo ![Room_repo.dart](https://github.com/TuongPhamCT/Rental-Room-App/assets/110316749/585aaa09-db67-473d-949e-ec7653f4e01b)
 
 7. Chạy ứng dụng bằng cách bấm nút "Run" trong IDE.
   Ứng dụng sẽ được chạy trên thiết bị của bạn (thật hoặc ảo).
