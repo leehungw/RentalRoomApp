@@ -12,23 +12,26 @@ class PowerCutInfoText extends StatelessWidget {
     required this.value,
     this.labelStyle = const TextStyle(
       fontWeight: FontWeight.bold,
-      color: Colors.black,
+      color: Color(0xFF50C878),
       fontSize: 14,
     ),
     this.valueStyle = const TextStyle(
-      color: Colors.black,
+      color: Color(0xFF50C878),
       fontSize: 14,
     ),
   });
 
   @override
   Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(text: label, style: labelStyle),
-          TextSpan(text: value, style: valueStyle),
-        ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(text: label, style: labelStyle),
+            TextSpan(text: value, style: valueStyle),
+          ],
+        ),
       ),
     );
   }

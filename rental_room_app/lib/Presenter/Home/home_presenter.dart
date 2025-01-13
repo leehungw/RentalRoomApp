@@ -75,3 +75,22 @@ class HomePresenter {
     _view?.onUpdateYourRoom(rentedRoom);
   }
 }
+
+class RoomFilter {
+  String? keyword;
+  Kind? kind;
+  double? minArea;
+  double? maxArea;
+  double? minPrice;
+  double? maxPrice;
+
+  RoomFilter({
+    this.keyword,
+    this.kind,
+    this.minArea,
+    this.maxArea,
+    this.minPrice,
+    this.maxPrice,
+  });
+}
+

@@ -261,7 +261,9 @@ class CreateRoomPresenter {
         ownerEmail: ownerEmail,
         ownerFacebook: ownerFacebook,
         ownerAddress: ownerAddress,
-        isAvailable: true);
+        isAvailable: true,
+        amenities: [],
+        tags: []);
     try {
       await _roomRepository.uploadRoom(room);
     } catch (e) {

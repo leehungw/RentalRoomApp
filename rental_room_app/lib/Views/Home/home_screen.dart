@@ -40,6 +40,8 @@ class _HomeScreenState extends State<HomeScreen>
   bool _isVisibleFilter = false;
   final int _soLuongPhongCoSan = 6;
   bool _show = true;
+  bool _showSuggestions = true;
+  List<Room>? _recommendedRooms;
 
   late List<Room> _roomAvailable;
   String _rentalID = '';
@@ -61,6 +63,20 @@ class _HomeScreenState extends State<HomeScreen>
     _preferencesPresenter?.getUserInfoFromSharedPreferences();
     _homePresenter = HomePresenter(this);
     _homePresenter?.requestLocationPermission();
+
+    _fetchRecommendedRooms();
+  }
+
+  void _fetchRecommendedRooms() async {
+    try {
+      List<Room> rooms = await _roomRepository
+          .getRecommendedRooms(FirebaseAuth.instance.currentUser!.uid);
+      setState(() {
+        _recommendedRooms = rooms;
+      });
+    } catch (e) {
+      print("Error fetching recommended rooms: $e");
+    }
   }
 
   @override
@@ -325,84 +341,35 @@ class _HomeScreenState extends State<HomeScreen>
                           'Suggestion For You',
                           style: TextStyles.titleHeading,
                         ),
-                        GestureDetector(
-                          onTap: () {
+                        IconButton(
+                          icon: Icon(_showSuggestions
+                              ? Icons.visibility_off
+                              : Icons.visibility),
+                          onPressed: () {
                             setState(() {
-                              _show = !_show;
+                              _showSuggestions = !_showSuggestions;
                             });
                           },
-                          child: Row(
-                            children: [
-                              Text(
-                                _show ? 'Hide' : 'Show',
-                                style: TextStyles.seeAll.copyWith(fontSize: 14),
-                              ),
-                              const Gap(3),
-                              Icon(
-                                _show
-                                    ? FontAwesomeIcons.angleUp
-                                    : FontAwesomeIcons.angleDown,
-                                size: 15,
-                                color: ColorPalette.grayText,
-                              ),
-                            ],
-                          ),
                         ),
                       ],
                     ),
-                    const Gap(10),
-                    _isOwner
-                        ? Container()
-                        : Visibility(
-                            visible: _show,
-                            child: FutureBuilder(
-                              future: _roomRepository.getRecommendedRooms(
-                                  FirebaseAuth.instance.currentUser!.uid),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Container();
-                                } else if (snapshot.hasData) {
-                                  if (snapshot.data!.isEmpty) {
-                                    return Center(
-                                      child: Text(
-                                        "Empty list",
-                                        style: TextStyles.titleHeading.copyWith(
-                                            color: ColorPalette.errorColor),
-                                      ),
-                                    );
-                                  }
-                                  List<Room> recommendedRooms = snapshot.data!;
-                                  return SizedBox(
-                                    height: 250,
-                                    width: size.width,
-                                    child: ListView(
-                                      scrollDirection: Axis.horizontal,
-                                      children: recommendedRooms
-                                          .map((room) => Padding(
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                        horizontal: 10),
-                                                child: SizedBox(
-                                                    height: 250,
-                                                    width: 170,
-                                                    child:
-                                                        RoomItem(room: room)),
-                                              ))
-                                          .toList(),
-                                    ),
-                                  );
-                                } else {
-                                  return Center(
-                                    child: Text(
-                                      "Loading",
-                                      style: TextStyles.titleHeading.copyWith(
-                                          color: ColorPalette.errorColor),
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
+                    if (_showSuggestions && _recommendedRooms != null)
+                      SizedBox(
+                        height: 350,
+                        width: size.width,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: _recommendedRooms!
+                              .map((room) => Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10),
+                                    child: SizedBox(
+                                        width: 170,
+                                        child: RoomItem(room: room)),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -441,7 +408,7 @@ class _HomeScreenState extends State<HomeScreen>
                         crossAxisCount: 2,
                         mainAxisSpacing: 20,
                         crossAxisSpacing: 20,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.5,
                         children: _roomAvailable
                             .map((e) => OwnerRoomItem(room: e))
                             .toList());

@@ -14,7 +14,14 @@ abstract class RoomRepository {
   Future<void> uploadRoom(Room room);
   Future<List<String>> uploadImages(
       List<Uint8List> images, String userId, String roomId);
-  Stream<List<Room>> getRooms();
+  Stream<List<Room>> getRooms({
+    String? keyword,
+    Kind? kind,
+    double? minArea,
+    double? maxArea,
+    double? minPrice,
+    double? maxPrice,
+  });
   Stream<List<Room>> getOwnedRoom();
   Future<QuerySnapshot> getOwnedRoomSnapshot();
   Future<Room> getRoomById(String roomID);
@@ -33,7 +40,7 @@ class RoomRepositoryIml implements RoomRepository {
     return _instance;
   }
 
-  String apiUrl = 'https://0aa7-34-46-99-219.ngrok-free.app/';
+  String apiUrl = 'https://3d99-2405-4802-917a-7d30-9811-b705-a4a9-260a.ngrok-free.app/';
 
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   @override
@@ -53,7 +60,7 @@ class RoomRepositoryIml implements RoomRepository {
       List<Uint8List> images, String userId, String roomId) async {
     int fileName = 0;
     List<String> imageUrls = [];
-  
+
     for (Uint8List image in images) {
       Reference ref = FirebaseStorage.instance
           .ref()
@@ -71,13 +78,47 @@ class RoomRepositoryIml implements RoomRepository {
   }
 
   @override
-  Stream<List<Room>> getRooms() {
-    return FirebaseFirestore.instance
+  Stream<List<Room>> getRooms({
+    String? keyword,
+    Kind? kind,
+    double? minArea,
+    double? maxArea,
+    double? minPrice,
+    double? maxPrice,
+  }) {
+    Query query = FirebaseFirestore.instance
         .collection(Room.documentId)
-        .where('isAvailable', isEqualTo: true)
-        .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList());
+        .where('isAvailable', isEqualTo: true);
+
+    // Apply filters dynamically
+    if (keyword != null && keyword.isNotEmpty) {
+      query = query.where('roomName', isGreaterThanOrEqualTo: keyword).where(
+          'roomName',
+          isLessThanOrEqualTo: keyword + '\uf8ff'); // Firestore text search
+    }
+
+    if (kind != null) {
+      query = query.where('kind', isEqualTo: kind.name);
+    }
+
+    if (minArea != null) {
+      query = query.where('area', isGreaterThanOrEqualTo: minArea);
+    }
+
+    if (maxArea != null) {
+      query = query.where('area', isLessThanOrEqualTo: maxArea);
+    }
+
+    if (minPrice != null) {
+      query = query.where('price.value', isGreaterThanOrEqualTo: minPrice);
+    }
+
+    if (maxPrice != null) {
+      query = query.where('price.value', isLessThanOrEqualTo: maxPrice);
+    }
+
+    return query.snapshots().map((snapshot) =>
+        snapshot.docs.map((doc) => Room.fromFirestore(doc)).toList());
   }
 
   @override
@@ -150,7 +191,10 @@ class RoomRepositoryIml implements RoomRepository {
         "gender": user.gender,
         "desiredPrice": tappedRoom.price.roomPrice,
         "desiredLocation_Long": location.longitude,
-        "desiredLocation_Lat": location.latitude
+        "desiredLocation_Lat": location.latitude,
+        "tags": tappedRoom.tags,
+        "amenities": tappedRoom.amenities,
+        "kind": tappedRoom.kind
       }),
     );
     List<String> recommendedRoomIds = [];

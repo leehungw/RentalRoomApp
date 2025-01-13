@@ -90,6 +90,21 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                     width: double.infinity,
                     height: 105,
                     fit: BoxFit.fitWidth,
+                    errorBuilder: (BuildContext context, Object exception,
+                        StackTrace? stackTrace) {
+                      String errorMessage = 'Image not available';
+
+                      return Container(
+                        height: 105,
+                        color: Colors.grey, // Placeholder color
+                        child: Center(
+                          child: Text(
+                            errorMessage,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 Container(
@@ -124,17 +139,18 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
-                          width: 50,
-                          alignment: Alignment.centerLeft,
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Text(
-                            maxLines: 1,
-                            widget.room.roomName,
-                            style: TextStyles.nameRoomItem,
+                        Flexible(
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            padding: const EdgeInsets.only(top: 5),
+                            child: Text(
+                              maxLines: 1,
+                              widget.room.roomName,
+                              style: TextStyles.nameRoomItem,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
-                        Expanded(child: Container()),
                         const Icon(
                           Icons.location_pin,
                           size: 20,
@@ -208,6 +224,17 @@ class _OwnerRoomItemState extends State<OwnerRoomItem> {
                           ),
                         ),
                       ],
+                    ),
+                    Wrap(
+                      spacing: 6.0,
+                      runSpacing: 6.0,
+                      children: widget.room.tags.take(2).map((tag) {
+                        return Chip(
+                          label: Text(tag),
+                          backgroundColor:
+                              ColorPalette.primaryColor.withOpacity(0.1),
+                        );
+                      }).toList(),
                     ),
                     FutureBuilder(
                         future: _commentRepo

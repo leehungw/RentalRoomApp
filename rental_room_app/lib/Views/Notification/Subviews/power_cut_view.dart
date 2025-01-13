@@ -57,9 +57,9 @@ class _PowerCutItemState extends State<PowerCutItem> {
     return Container(
       margin: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.blueAccent, width: 1),
+        border: Border.all(color: Color(0xFF50C878), width: 1),
       ),
       child: Column(
         children: [
@@ -107,17 +107,17 @@ class _PowerCutScheduleItemState extends State<PowerCutScheduleItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Card(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blueAccent, width: 1),
       ),
+      elevation: 2,
       child: Column(
         children: [
           ListTile(
-            title: Text(widget.powerCut.date, style: TextStyle(fontSize: 16)),
+            title: Text(widget.powerCut.date,
+                style: TextStyle(fontSize: 16, color: Color(0xFF50C878))),
             trailing: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
             onTap: () {
               setState(() {
