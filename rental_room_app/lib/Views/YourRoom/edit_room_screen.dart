@@ -48,12 +48,18 @@ class _EditRoomScreenState extends State<EditRoomScreen>
   final _addressController = TextEditingController();
 
   final List<String> _images = [];
+  final List<String> _tags = [];
+  final List<String> _amenities = [];
+  final TextEditingController _tagController = TextEditingController();
+  final TextEditingController _amenityController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _roomKind = _roomKinds.first;
     _roomIdController.text = widget.room.roomName;
+    _tags.addAll(widget.room.tags);
+    _amenities.addAll(widget.room.amenities);
     _editRoomPresenter = EditRoomPresenter(this);
   }
 
@@ -98,8 +104,8 @@ class _EditRoomScreenState extends State<EditRoomScreen>
         toolbarHeight: kToolbarHeight * 1.5,
       ),
       body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(30),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
           child: Form(
             key: _formKey,
             child: Column(
@@ -825,6 +831,72 @@ class _EditRoomScreenState extends State<EditRoomScreen>
                     ),
                   ],
                 ),
+                const Gap(20),
+                Text('Tags', style: TextStyles.titleHeading),
+                TextField(
+                  controller: _tagController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter a tag',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          if (_tagController.text.isNotEmpty) {
+                            _tags.add(_tagController.text);
+                            _tagController.clear();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 6.0,
+                  runSpacing: 6.0,
+                  children: _tags.map((tag) {
+                    return Chip(
+                      label: Text(tag),
+                      onDeleted: () {
+                        setState(() {
+                          _tags.remove(tag);
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                const Gap(20),
+                Text('Amenities', style: TextStyles.titleHeading),
+                TextField(
+                  controller: _amenityController,
+                  decoration: InputDecoration(
+                    hintText: 'Enter an amenity',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        setState(() {
+                          if (_amenityController.text.isNotEmpty) {
+                            _amenities.add(_amenityController.text);
+                            _amenityController.clear();
+                          }
+                        });
+                      },
+                    ),
+                  ),
+                ),
+                Wrap(
+                  spacing: 6.0,
+                  runSpacing: 6.0,
+                  children: _amenities.map((amenity) {
+                    return Chip(
+                      label: Text(amenity),
+                      onDeleted: () {
+                        setState(() {
+                          _amenities.remove(amenity);
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
                 const Gap(45),
                 Container(
                   alignment: Alignment.center,
@@ -846,7 +918,9 @@ class _EditRoomScreenState extends State<EditRoomScreen>
                             _electricPriceController.text,
                             _otherControler.text,
                             _facebookController.text,
-                            _addressController.text);
+                            _addressController.text,
+                            _tags,
+                            _amenities);
                       }
                     },
                     width: 150,

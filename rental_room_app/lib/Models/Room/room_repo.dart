@@ -40,7 +40,8 @@ class RoomRepositoryIml implements RoomRepository {
     return _instance;
   }
 
-  String apiUrl = 'https://3d99-2405-4802-917a-7d30-9811-b705-a4a9-260a.ngrok-free.app/';
+  String apiUrl =
+      'https://420e-2405-4802-917a-7d30-9811-b705-a4a9-260a.ngrok-free.app/';
 
   String currentUserId = FirebaseAuth.instance.currentUser!.uid;
   @override

@@ -185,19 +185,22 @@ class EditRoomPresenter {
   }
 
   void saveButtonPressed(
-      String roomID,
-      String roomName,
-      String kind,
-      String area,
-      String location,
-      String description,
-      List<String> images,
-      String roomPrice,
-      String waterPrice,
-      String electricPrice,
-      String otherPrice,
-      String ownerFacebook,
-      String ownerAddress) async {
+    String roomID,
+    String roomName,
+    String kind,
+    String area,
+    String location,
+    String description,
+    List<String> images,
+    String roomPrice,
+    String waterPrice,
+    String electricPrice,
+    String otherPrice,
+    String ownerFacebook,
+    String ownerAddress,
+    List<String> tags,
+    List<String> amenities,
+  ) async {
     Price price = Price(
         room: int.parse(roomPrice),
         water: int.parse(waterPrice),
@@ -241,6 +244,8 @@ class EditRoomPresenter {
         "ownerAddress": ownerAddress,
         "primaryImgUrl": primaryImgUrl,
         "secondaryImgUrls": secondaryImgUrls,
+        "tags": tags,
+        "amenities": amenities
       });
     } catch (e) {
       _view?.onPopContext();

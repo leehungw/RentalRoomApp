@@ -210,7 +210,9 @@ class CreateRoomPresenter {
       String electricPrice,
       String otherPrice,
       String ownerFacebook,
-      String ownerAddress) async {
+      String ownerAddress,
+      List<String> tags,
+      List<String> amenities) async {
     //create data model
     Price price = Price(
         room: int.parse(roomPrice),
@@ -262,8 +264,8 @@ class CreateRoomPresenter {
         ownerFacebook: ownerFacebook,
         ownerAddress: ownerAddress,
         isAvailable: true,
-        amenities: [],
-        tags: []);
+        tags: tags,
+        amenities: amenities);
     try {
       await _roomRepository.uploadRoom(room);
     } catch (e) {
